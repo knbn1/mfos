@@ -201,23 +201,23 @@ if exist "%disk%/%sysdir%/extra-mods/flashbreak.mfm" (
 
 :: Userdata check
 
-title Checking userdata directory...
+title Checking userdata partition...
 echo.
-if exist "%disk%/%usrdir%/%username%" (echo Userdata directory is %sysdisk%/%usrdir%. && echo.)
+if exist "%disk%/%usrdir%/%username%" (echo Userdata partition is %sysdisk%/%usrdir%. && echo.)
 
 :: Userdata regeneration
 
 if not exist "%disk%/%usrdir%/%username%" (
-echo Userdata directory not found!
+echo Userdata partition not found!
 echo.
-echo Creating userdata directory... && cd /d "%disk%" && rd "%usrdir%" /s /q && md "%usrdir%" && cd "%usrdir%" && md %username% && echo.
-if not exist "%disk%/%usrdir%/%username%/" (echo Userdata directory creation failed! && echo. && pause && goto prompt)
+echo Creating userdata partition... && cd /d "%disk%" && rd "%usrdir%" /s /q && md "%usrdir%" && cd "%usrdir%" && md %username% && echo.
+if not exist "%disk%/%usrdir%/%username%/" (echo Userdata partition creation failed! && echo. && pause && goto prompt)
 )
 
 if not exist "%disk%/%usrdir%/%username%/%osdata%" (
-echo Userdata directory exists but hasn't been set up, doing that now...
+echo Userdata partition exists but hasn't been set up, doing that now...
 cd /d "%disk%/%usrdir%/%username%" && md "%osdata%" && echo.
-if not exist "%disk%/%usrdir%/%username%/%osdata%/" (echo Userdata directory creation failed! && echo. && pause && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/" (echo Userdata partition creation failed! && echo. && pause && goto prompt)
 )
 
 if not exist "%disk%/%usrdir%/%username%/%osdata%/toggles/" (
@@ -437,17 +437,17 @@ echo Installed /%sysdir%/extra-mods/sensors.mfm
 :: Post-installation activities
 
 echo.
-if exist "%disk%/%usrdir%/%username%" (echo Existing userdata directory found! && echo After booting run 'homewipe' to regenerate userdata directory. && echo.)
+if exist "%disk%/%usrdir%/%username%" (echo Existing userdata partition found! && echo After booting run 'homewipe' to regenerate userdata partition. && echo.)
 
 if not exist "%disk%/%usrdir%/%username%" (
-echo Creating userdata directory... && cd /d "%disk%" && rd "%usrdir%" /s /q && md "%usrdir%" && cd "%usrdir%" && md %username% && echo.
-if not exist "%disk%/%usrdir%/%username%/" (echo Userdata directory creation failed! && echo. && pause && goto prompt)
+echo Creating userdata partition... && cd /d "%disk%" && rd "%usrdir%" /s /q && md "%usrdir%" && cd "%usrdir%" && md %username% && echo.
+if not exist "%disk%/%usrdir%/%username%/" (echo Userdata partition creation failed! && echo. && pause && goto prompt)
 )
 
 if not exist "%disk%/%usrdir%/%username%/%osdata%" (
-echo Setting up userdata directory...
+echo Setting up userdata partition...
 cd /d "%disk%/%usrdir%/%username%" && md "%osdata%" && echo.
-if not exist "%disk%/%usrdir%/%username%/%osdata%/" (echo Userdata directory creation failed! && echo. && pause && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/" (echo Userdata partition creation failed! && echo. && pause && goto prompt)
 )
 
 if not exist "%disk%/%usrdir%/%username%/%osdata%/toggles/" (
@@ -577,12 +577,12 @@ cd /d "%chdir%"
 echo Changed directory to "%chdir%".
 goto prompt
 
-:: Userdata directory management
+:: Userdata partition management
 
 :home
 title File Manager
 if not exist "%disk%/%sysdir%/fsutils.mcm" (echo. && echo Invalid command. && goto prompt)
-if not exist "%disk%/%usrdir%/%username%" (echo. && echo Userdata directory not found. && goto prompt)
+if not exist "%disk%/%usrdir%/%username%" (echo. && echo Userdata partition not found. && goto prompt)
 cd /d "%disk%/%usrdir%/%username%"
 echo.
 echo Welcome home!
@@ -592,19 +592,19 @@ goto prompt
 title File Manager
 echo. 
 if not exist "%disk%/%sysdir%/fsutils.mcm" (echo Invalid command. && goto prompt)
-if not exist "%disk%/%usrdir%/%username%" (echo Userdata directory not found. && goto prompt)
-echo This command wipes userdata.
+if not exist "%disk%/%usrdir%/%username%" (echo Userdata partition not found. && goto prompt)
+echo This command wipes all userdata.
 echo Back up any data before continuing!
 echo.
 pause
 echo.
-echo Creating userdata directory... && cd /d "%disk%" && rd "%usrdir%" /s /q && md "%usrdir%" && cd "%usrdir%" && md %username% && echo.
-if not exist "%disk%/%usrdir%/%username%/" (echo Userdata directory creation failed! && echo. && pause && goto prompt)
+echo Creating userdata partition... && cd /d "%disk%" && rd "%usrdir%" /s /q && md "%usrdir%" && cd "%usrdir%" && md %username% && echo.
+if not exist "%disk%/%usrdir%/%username%/" (echo Userdata partition creation failed! && echo. && pause && goto prompt)
 
 if not exist "%disk%/%usrdir%/%username%/%osdata%" (
-echo Setting up userdata directory...
+echo Setting up userdata partition...
 cd /d "%disk%/%usrdir%/%username%" && md "%osdata%" && echo.
-if not exist "%disk%/%usrdir%/%username%/%osdata%/" (echo Userdata directory creation failed! && echo. && pause && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/" (echo Userdata partition creation failed! && echo. && pause && goto prompt)
 )
 
 if not exist "%disk%/%usrdir%/%username%/%osdata%/toggles/" (
@@ -621,7 +621,7 @@ if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/" (echo Package direc
 if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/installed" (echo Package directory creation failed! && echo. && pause && goto prompt)
 )
 
-echo Userdata directory creation succeeded!
+echo Userdata partition creation succeeded!
 goto prompt
 
 :: DevTools
