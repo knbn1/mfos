@@ -50,10 +50,11 @@ Here are some useful commands to start with:
 MicroflashOS includes a "package manager" called ```mfpkg```. 
 It handles standalone packages in the ```.mfp``` format, otherwise it acts as a bootstrap for installers (such as the one used to install DevTools)
 
-- List available packages in repository: ```mfpkg-repo-available```. The included repository is the *GigaflashOS Unified Repository [Revision 1]*
+- List available packages in repository: ```mfpkg-repo-available```.
+  The included repository is the *GigaflashOS Unified Repository [Revision 1]*
 - List installed packages: ```mfpkg-list```
 - Install/uninstall package: ```mfpkg-install``` or ```mfpkg-uninstall``` respectively.
-- QUICKLY install/uninstall a package: ```mfpkg-dl-[package ID]``` or ```mfpkg-rm-[package ID]``` respectively
+- QUICKLY install/uninstall a package: ```mfpkg-dl-[package ID]``` or ```mfpkg-rm-[package ID]``` respectively.
 
 ---
 
@@ -107,7 +108,7 @@ Upon reinstalling MicroflashOS, only the ```mfos``` folder is modified.
 Any leftover user data in ```userdata``` is left intact. *This may cause some problems when updating.* 
 If a release does break something from the older version, it will be made clear in the release notes.
 
-If you wish to fully format the system to clear all userdata, run ```homewipe``` after installation.
+If you wish to clear userdata, run ```homewipe``` after installation.
 
 ---
 
