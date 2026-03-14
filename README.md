@@ -32,8 +32,7 @@ After it is "installed" just run the Batch file every "startup".
 
 ## Quick Start Guide
 
-In MicroflashOS, you can type ```help``` to get a list of all available commands. 
-The more you do (usually just install packages) the more commands will be shown.
+In MicroflashOS, you can type ```help``` to get a list of all available commands. Packages can choose to add their own commands to this section.
 
 Here are some useful commands to start with:
 
@@ -48,17 +47,19 @@ Here are some useful commands to start with:
 
 ## MicroflashOS Package Manager
 
-MicroflashOS includes a "package manager" (mfpkg)
+MicroflashOS includes a "package manager" called ```mfpkg```. 
+It handles standalone packages in the ```.mfp``` format, otherwise it acts as a bootstrap for installers (such as the one used to install DevTools)
 
-- To list available packages in repository type ```mfpkg-repo-available```. The included repository is the *GigaflashOS Unified Repository [Revision 1]*
-- To install/uninstall a package type ```mfpkg-install``` or ```mfpkg-uninstall``` respectively. Alternatively you can quickly install/uninstall a package with ```mfpkg-dl-[package ID]``` or ```mfpkg-rm-[package ID]``` respectively
-- To list installed packages type ```mfpkg-list```
+- List available packages in repository: ```mfpkg-repo-available```. The included repository is the *GigaflashOS Unified Repository [Revision 1]*
+- List installed packages: ```mfpkg-list```
+- Install/uninstall package: ```mfpkg-install``` or ```mfpkg-uninstall``` respectively.
+- QUICKLY install/uninstall a package: ```mfpkg-dl-[package ID]``` or ```mfpkg-rm-[package ID]``` respectively
 
 ---
 
-## DevTools
+## DevTools (Developer Tools)
 
-Some packages may require DevTools to function.
+Some packages may require DevTools to function properly.
 
 Install package ID ```001```.
 
@@ -68,7 +69,8 @@ Installing DevTools also opens up some more commands that can be viewed via ```h
 
 ## Jailbreak???
 
-As part of the lore, MicroflashOS has a jailbreak called Flashbreak, which has been faithfully recreated here. Some packages may require Flashbreak to function.
+As part of the lore, MicroflashOS has a jailbreak called Flashbreak, which has been faithfully recreated here. 
+Some packages may require Flashbreak to function properly.
 
 Install package ID ```002```.
 
@@ -86,25 +88,26 @@ Simply delete the Batch file and the folder named ```MicroflashOS```
 
 ## File formats
 
-MicroflashOS utilises some file formats for system files:
+MicroflashOS utilises some proprietary file formats:
 - ```.mcm```: MicroflashOS Core Module, reserved for critical system modules (sysmodules) that are required for MicroflashOS. **It is recommended you do not modify these.**
 - ```.mfm```: MicroflashOS Module, these are for non-critical sysmodules
-- ```.mfp```: MicroflashOS Package, used by packages installed from mfpkg
+- ```.mfp```: MicroflashOS Package, used by packages installed from ```mfpkg```
 
 ---
 
 ## Directories
 
 The system disk consists of two "partitions": ```mfos``` and ```userdata```
-- ```mfos``` contains the operating system itself.
+- ```mfos``` contains the operating system itself. Sysmodules are stored here.
 - ```userdata``` contains, well, user data.
   Inside each user folder (set by the Batch variable ```%username%```) is a folder named ```mfosdata``` that contains user-specific packages and toggles.
   If ```mfosdata``` is ever corrupted it will simply be regenerated on next boot.
 
-Upon reinstalling MicroflashOS, only the ```mfos``` folder is modified.
-Any leftover user data in ```userdata``` is left intact. *This may cause some problems when updating.*
+Upon reinstalling MicroflashOS, only the ```mfos``` folder is modified. 
+Any leftover user data in ```userdata``` is left intact. *This may cause some problems when updating.* 
+If a release does break something from the older version, it will be made clear in the release notes.
 
-If you wish to fully format the system you must run ```homewipe``` after installation.
+If you wish to fully format the system to clear all userdata, run ```homewipe``` after installation.
 
 ---
 
