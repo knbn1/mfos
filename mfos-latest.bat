@@ -12,8 +12,8 @@ set "fbver=4.4"
 set "usrdir=userdata"
 set "osdata=mfosdata"
 set "sysdir=mfos"
-set "pkgrepo=GigaflashOS Unified Repository [Revision 1]"
-set "mfver=2026.03.15"
+set "pkgrepo=GigaflashOS Unified Repository [Revision 2]"
+set "mfver=2026.03.18-rbtest"
 
 :: Rewrite version when DevTools are found
 
@@ -154,12 +154,14 @@ echo.
 title Startup Failure! && echo MicroflashOS startup failed. Entering recovery...
 goto recovery )
 
+
 :: Initialization of non-critical sysmodules
 
 if exist "%disk%/%sysdir%/extra-mods/sensors.mfm" (echo Loaded /%sysdir%/extra-mods/sensors.mfm)
 if exist "%disk%/%sysdir%/extra-mods/audio.mfm" (echo Loaded /%sysdir%/extra-mods/audio.mfm)
 if exist "%disk%/%sysdir%/extra-mods/graphics.mfm" (echo Loaded /%sysdir%/extra-mods/graphics.mfm)
 if exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo Loaded /%sysdir%/extra-mods/devtools.mfm)
+if exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Loaded %sysdir%/extra-mods/databases.mfm)
 
 if exist "%disk%/%usrdir%/%username%/%osdata%/toggles/slowboot" (echo. && pause)
 
@@ -328,6 +330,14 @@ echo devtools-uninstall: DevTools uninstaller
 echo mountsys: Mount system disk to modify contents
 echo modules: List installed system modules "sysmodules"
 echo toggles-[create/delete/enabled/list]: Manage system "toggles"
+if exist "%disk%/%sysdir%/extra-mods/databases.mfm (
+echo.
+echo Database management:
+echo.
+echo entities-[add/del/list/wipe]: Entity database management
+echo locations-[add/del/list/wipe]: Location database management
+echo objects-[add/del/list/wipe]: Object database management
+)
 if exist  "%disk%/%sysdir%/extra-mods/flashbreak.mfm" (
 echo.
 echo F145HBR34K commands:
@@ -800,14 +810,15 @@ goto prompt
 title MicroflashOS Package Manager
 echo.
 echo Repository: %pkgrepo%
-if "%pkgrepo%" == "GigaflashOS Unified Repository [Revision 1]" (
+if "%pkgrepo%" == "GigaflashOS Unified Repository [Revision 2]" (
 echo.
 echo ID 001: MicroflashOS DevTools
 echo ID 002: F145HBR34K jailbreak
 echo ID 003: WinFlash Compatibility Layer
 echo ID 004: nuke
 echo ID 005: MicroflashOS Dumper
-echo ID 006: Virtual System Disk Mounter )
+echo ID 006: Virtual System Disk Mounter
+echo ID 007: Robolibs Database Manager [BETA] )
 goto prompt
 
 :: Installers
@@ -877,10 +888,6 @@ if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/installed/002-F145HBR
 goto reboot
 )
 
-echo.
-echo Jailbreak installation failed!
-goto prompt
-
 :mfpkg-dl-003
 echo.
 if not exist "%disk%/%sysdir%/mfpkg.mcm" (echo Invalid command. && goto prompt)
@@ -937,9 +944,46 @@ echo.
 echo Virtual System Disk Mounter by GigaflashOS Devs >"%disk%/%usrdir%/%username%/%osdata%/packages/mountvirt.mfp"
 if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/mountvirt.mfp" (echo Failed to install package. && goto prompt)
 echo Installed package from %pkgrepo%> "%disk%/%usrdir%/%username%/%osdata%/packages/installed/006-mountvirt"
-if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/installed/006-mountvirt" (echo Failed to register package. && goto prompt)
+if not exist "%disk%/%usrdir/%username%/%osdata%/packages/installed/006-mountvirt" (echo Failed to register package. && goto prompt)
 echo Installed /%usrdir%/%osdata%/packages/mountvirt.mfp
 goto prompt
+
+:mfpkg-dl-007
+echo.
+if not exist "%disk%/%sysdir%/mfpkg.mcm" (echo Invalid command. && goto prompt)
+title MicroflashOS Package Manager
+echo Downloading databases (pID 007)
+echo.
+echo Executing installer...
+echo.
+echo Robolibs Database Manager - Project Epsilon>"%disk%/%usrdir%/%username%/%osdata%/packages/dbman.mfp"
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/dbman.mfp" (echo Failed to install package. && goto prompt)
+echo Robolibs Database Manager - Project Epsilon [%new_mfver%]>"%disk%/%sysdir%/extra-mods/databases.mfm"
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Failed to install sysmodule "/%sysdir%/extra-mods/databases.mfm". && echo. && goto prompt)
+echo Installed %sysdir%/extra-mods/databases.mfm
+echo.
+cd /d "%disk%/%usrdir%/%username%/%osdata%/packages"
+
+if exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases" (echo Existing databases detected, flushing... && rd databases /s /q && echo.)
+md databases
+if not exist databases (echo Failed to initialize database storage location! && goto prompt)
+cd /d "%disk%/%usrdir%/%username%/%osdata%/packages/databases"
+
+echo Creating entity database... && mkdir entities && echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities/" (echo Entity database creation failed! && echo. && goto prompt)
+echo Creating location database... && mkdir locations && echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations/" (echo Location database creation failed! && echo. && goto prompt)
+echo Creating object database... && mkdir objects && echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects/" (echo Object database creation failed! && echo. && goto prompt)
+
+echo Installed package from %pkgrepo%> "%disk%/%usrdir%/%username%/%osdata%/packages/installed/007-databases"
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/installed/007-databases" (echo Failed to register package. && goto prompt)
+
+echo Installed databases.
+echo.
+echo The system will now reboot.
+echo.
+pause && goto reboot
 
 :: Uninstallers
 
@@ -1080,3 +1124,164 @@ echo Mounted virtual disk! Rebooting...
 echo.
 pause
 goto reboot
+
+:: databases - initial implementation
+
+:: Entity database management
+
+:entities-add
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities" (echo Entity database not found! && goto prompt)
+set /p "entity_add=Entity to add to database: "
+echo.
+set /p "entity_desc=Entity description: "
+echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities" (echo Entity database not found! && goto prompt)
+echo %entity_add%: %entity_desc%>"%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities/%entity_add%"
+echo Entity %entity_add% added.
+goto prompt
+
+:entities-del
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities" (echo Entity database not found! && goto prompt)
+set /p "entity_del=Entity to delete from database: "
+echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities" (echo Entity database not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities/%entity_del%" (echo Database entry not found! && goto prompt)
+del "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities/%entity_del%" /f
+echo Entity %entity_del% deleted.
+goto prompt
+
+:entities-list
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities" (echo Entity database not found! && goto prompt)
+dir "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities" /b
+goto prompt
+
+:entities-wipe
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities" (echo Entity database not found! && goto prompt)
+echo Wipe all database entries?
+echo.
+pause
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities" (echo. && echo Entity database not found! && goto prompt)
+echo.
+cd "%disk%/%usrdir%/%username%/%osdata%/packages/databases/entities"
+del *.* /f /q
+cd %cd%
+echo Entity database wiped.
+goto prompt
+
+:: Location database management
+
+:locations-add
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations" (echo Location database not found! && goto prompt)
+set /p "location_add=Location to add to database: "
+echo.
+set /p "location_desc=Location description: "
+echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations" (echo Location database not found! && goto prompt)
+echo %location_add%: %location_desc%>"%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations/%location_add%"
+echo Location %location_add% added.
+goto prompt
+
+:locations-del
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations" (echo Location database not found! && goto prompt)
+set /p "location_del=Location to delete from database: "
+echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations" (echo Location database not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations/%location_del%" (echo Database entry not found! && goto prompt)
+del "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations/%location_del%" /f
+echo Location %location_del% deleted.
+goto prompt
+
+:locations-list
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations" (echo Location database not found! && goto prompt)
+dir "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations" /b
+goto prompt
+
+:locations-wipe
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations" (echo Location database not found! && goto prompt)
+echo Wipe all database entries?
+echo.
+pause
+echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations" (echo Location database not found! && goto prompt)
+cd "%disk%/%usrdir%/%username%/%osdata%/packages/databases/locations"
+del *.* /f /q
+cd %cd%
+echo Location database wiped.
+goto prompt
+
+:: Object database management
+
+:objects-add
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects" (echo Object database not found! && goto prompt)
+set /p "object_add=Object to add to database: "
+echo.
+set /p "object_desc=Object description: "
+echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects" (echo Object database not found! && goto prompt)
+echo %object_add%: %object_desc%>"%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects/%object_add%"
+echo Object %object_add% added.
+goto prompt
+
+:objects-del
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects" (echo Object database not found! && goto prompt)
+set /p "object_del=Object to delete from database: "
+echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects" (echo Object database not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects/%object_del%" (echo Database entry not found! && goto prompt)
+del "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects/%object_del%" /f
+echo Object %object_del% deleted.
+goto prompt
+
+:objects-list
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects" (echo Object database not found! && goto prompt)
+dir "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects" /b
+goto prompt
+
+:objects-wipe
+echo.
+if not exist "%disk%/%sysdir%/extra-mods/devtools.mfm" (echo This package requires DevTools to function. Please install pID 001. && goto prompt
+if not exist "%disk%/%sysdir%/extra-mods/databases.mfm" (echo Database manager not found! && goto prompt)
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects" (echo Object database not found! && goto prompt)
+echo Wipe all database entries?
+echo.
+pause
+echo.
+if not exist "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects" (echo Object database not found! && goto prompt)
+cd "%disk%/%usrdir%/%username%/%osdata%/packages/databases/objects"
+del *.* /f /q
+cd %cd%
+echo Object database wiped.
+goto prompt
