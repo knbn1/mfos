@@ -15,7 +15,9 @@ Code is licensed under the GPL-3.0 license, you are free to make your own deriva
 
 ## Compatibility
 
-It has been tested under Wine (Arch Linux) and Windows 10.
+I normally test under Wine (Arch Linux)
+
+Sometimes it may crash on Windows 10 when typing a command. I don't know why.
 
 ---
 
@@ -27,6 +29,14 @@ On install, the Batch file creates a "system disk" named ```MicroflashOS``` in t
 All operating system data is stored inside that folder.
 
 After it is "installed" just run the Batch file every "startup".
+
+---
+
+## Updating MicroflashOS
+
+Download the latest release and run the Batch file.
+
+Then simply run ```recovery``` to boot to recovery mode to reinstall.
 
 ---
 
@@ -104,8 +114,8 @@ The system disk consists of two "partitions": ```mfos``` and ```userdata```
   Inside each user directory (set by the Batch variable ```%username%```) is a directory named ```mfosdata``` that contains user-specific packages and toggles.
   If ```mfosdata``` is ever corrupted it will simply be regenerated on next boot.
 
-Upon reinstalling MicroflashOS, only the ```mfos``` folder is modified. 
-Any leftover user data in ```userdata``` is left intact. *This may cause some problems when updating.* 
+Upon reinstalling/updating MicroflashOS, only the ```mfos``` folder is modified. 
+Any leftover user data in ```userdata``` is left intact. It depends on the version and how major it is, which will be specified in the release notes.
 If a release does break something from the older version, it will be made clear in the release notes.
 
 If you wish to clear userdata, run ```homewipe``` after installation.
@@ -123,12 +133,24 @@ Some noteworthy ones:
 
 ---
 
+## Reading log messages (as of 2026.04.01)
+
+By default a file named ```mfos-log.txt``` is created in the same directory as the Batch file. 
+(This behavior can be disabled with the ```nolog``` toggle.)
+
+Log messages follow this format:
+
+```[a] b: c```
+
+where ```a``` is the running process, ```b``` is the message type (either ```INFO```, ```WARN```, ```DEBUG``` or ```ERROR```)
+
+---
+
 ## Roadmap:
 
 - More packages (maybe some games)
 - MicroflashOS Updater
-- Logging system for debugging
-- ```robolibs``` (added database manager, still some more lore-specific stuff to add)
+- ```robolibs``` (added database manager in ```2026.03.18-rbtest```, still some more lore-specific stuff to add)
 - More repositories (maybe have a distinction between official packages from Kenneth and GigaflashOS CFW packages?)
 - More jailbreak-y stuff (I have some handwritten lore pages that need to be released for that though)
 - Bug fixes (never gets old!), mostly just looking for any weird situations
