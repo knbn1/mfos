@@ -34,14 +34,16 @@ After it is "installed" just run the Batch file every "startup".
 
 ## Updating MicroflashOS
 
-Download the latest release and run the Batch file.
+In most cases, simply download the latest release's Batch file and run it.
 
-Then simply run ```recovery``` to boot to recovery mode to reinstall.
+Then simply run ```recovery``` to reboot to recovery mode to reinstall.
 
 Upon updating MicroflashOS, only the ```mfos``` folder is modified. 
 Any leftover user data in ```userdata``` is left intact. 
-However, this depends on the latest version and how major it is, which will be specified in the release notes.
-If a release does break something from the older version, it will be made clear in the release notes.
+However, this depends on the latest version and whether or not it will affect the userdata partition.
+If a release does break something, it will be made clear in the release notes.
+
+Note that if a release makes changes to the system partition, a missing/modified file is often enough to automatically reboot to recovery.
 
 ---
 
