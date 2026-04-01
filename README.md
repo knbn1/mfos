@@ -47,7 +47,7 @@ Note that if a release makes changes to the system partition, a missing/modified
 
 ---
 
-## Quick Start Guide
+## I need help!
 
 In MicroflashOS, you can type ```help``` to get a list of all available commands. Packages can choose to add their own commands to this section.
 
@@ -116,9 +116,9 @@ Please be careful with this command to avoid data loss!
 
 MicroflashOS utilises some proprietary file formats:
 
-- ```.mcm```: MicroflashOS Core Module, reserved for critical system modules (sysmodules) that are required for MicroflashOS. **It is recommended you do not modify these.**
-- ```.mfm```: MicroflashOS Module, these are non-critical sysmodules that don't affect the system *much* but still be careful with them.
-- ```.mfp```: MicroflashOS Package, used by packages installed from ```mfpkg```
+- ```.mcm```: MicroflashOS Core Module, reserved for critical system modules (sysmodules) that are required for MicroflashOS. **It is recommended you do not modify files with this extension.**
+- ```.mfm```: MicroflashOS Module, these are non-critical sysmodules that don't affect the system *much* but you should still be careful with them.
+- ```.mfp```: MicroflashOS Package, used by packages installed from ```mfpkg```. Deleting these will leave the package in a broken/unusable state, which can only be resolved by reinstalling the package.
 
 ---
 
@@ -129,13 +129,13 @@ The system disk consists of two "partitions": ```mfos``` and ```userdata```
 - ```mfos``` contains the operating system itself. Sysmodules are stored here.
 - ```userdata``` contains, well, user data.
   Inside each user directory (set by the Batch variable ```%username%```) is a directory named ```mfosdata``` that contains user-specific packages and toggles.
-  If ```mfosdata``` is ever corrupted it will simply be regenerated on next boot.
+  If ```mfosdata``` is ever corrupted it will simply be regenerated on next boot. Note that user settings and/or packages may be missing.
 
 ---
 
 ## Toggles
 
-Toggles are configurations that can be configured.
+Toggles are configurations that can be configured (of course).
 Note that accessing and/or modifying these requires DevTools.
 
 Some noteworthy ones:
