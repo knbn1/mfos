@@ -11,3 +11,8 @@ At the end of the day, this is still, and will always be, a passion project. I f
 That said, feel free to reach out (contact info is on [my website](https://knbn1.github.io)) if you think I could improve something. Or if you just wanna share some words of encouragement. If you want to analyse/break down my code, feel free to! It isn't obfuscated in the slightest, quite the opposite actually as I commented the code to oblivion.
 
 -knb
+
+Some questions and answers to them:
+
+- *Will you port this to X language?* I do not plan on porting this anywhere at all in the future, but you are welcome to try.
+- *Why didn't you make it out of X language?* Sadly Batch is the only language I'm familiar with, and only to an extent. As I'm struggling with my studies I can't invest the time to learn a new language, and I'm happy with how my little project is going in Batch.
