@@ -107,7 +107,6 @@ Please be careful with this command to avoid unintentional data loss!
 
 # Technicalities for Nerds
 
----
 
 ## File Formats
 
