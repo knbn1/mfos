@@ -113,7 +113,7 @@ Please be careful with this command to avoid unintentional data loss!
 MicroflashOS utilises some proprietary file formats:
 
 - ```.mcm```: MicroflashOS Core Module, reserved for critical system modules (sysmodules) that are required for MicroflashOS. **It is recommended you do not modify files with this extension.**
-- ```.mfm```: MicroflashOS Module, these are non-critical sysmodules that don't affect the core system, however modifying these may break packages as they use this sysmodule format.
+- ```.mfm```: MicroflashOS Module, these are non-critical sysmodules that don't affect the core system, however modifying these may break packages using this sysmodule format.
 - ```.mfp```: MicroflashOS Package, used by packages installed from ```mfpkg```. Deleting these will leave the package in a broken/unusable state, which can only be resolved by reinstalling the package.
 
 ---
