@@ -4,25 +4,18 @@
 
 @echo off
 
-:: Define versions
+:: Define some version strings
 
-set "mfosver=2026.04.02"
 set "fbver=4.6"
 set "pkgrepo=GigaflashOS Unified Repository [Revision 1]"
 
-:: Define directories
+:: Define default directories
 
 set "sysdir=mfos"
 set "usrdir=userdata"
 set "datadir=mfosdata"
 set "modsdir=extra-mods"
-
-:: Define partitions
-
 set "disk0label=MicroflashOS"
-set "disk0=%~p0%disk0label%"
-set "disk0p1=%disk0%/%sysdir%"
-set "disk0p2=%disk0%/%usrdir%"
 
 :: Boot process stage 0 - Bootloader
 
@@ -30,10 +23,16 @@ set "disk0p2=%disk0%/%usrdir%"
 cd /d %~p0
 title MicroflashOS Bootloader
 
-:: Rewrite version when DevTools are found
+:: System disk stuffs
 
-if exist "%disk0p1%/%modsdir%/devtools.mfm" (set "mfosver=%mfosver%-dev")
-if not exist "%disk0p1%/%modsdir%/devtools.mfm" (set "mfosver=2026.04.02")
+set "disk0=%~p0%disk0label%"
+set "disk0p1=%disk0%/%sysdir%"
+set "disk0p2=%disk0%/%usrdir%"
+
+:: Define MicroflashOS version
+
+if not exist "%disk0p1%/%modsdir%/devtools.mfm" (set "mfosver=2026.04.12")
+if exist "%disk0p1%/%modsdir%/devtools.mfm" (set "mfosver=2026.04.12-dev")
 
 :: Startup parameters
 
@@ -41,6 +40,8 @@ if exist "%disk0p2%/%username%/%datadir%/toggles/echoon" (@echo on)
 if not exist "%disk0p2%/%username%/%datadir%/toggles/noclear" (cls)
 if exist "%disk0p2%/%username%/%datadir%/toggles/nolog" (set "syslog=NUL")
 if not exist "%disk0p2%/%username%/%datadir%/toggles/nolog" (set "syslog=%~p0mfos-log.txt")
+
+:: Start logging
 
 echo [bootloader] INFO: logging system initialized!
 echo [bootloader] INFO: log location: %syslog%
@@ -62,7 +63,7 @@ echo [kernel] INFO: terminating bootloader... done! >> "%syslog%"
 title Finding system disk...
 if exist "%disk0label%" (
 echo System disk "%disk0label%" mounted as /
-echo [kernel] INFO: system disk is %disk0label% with mountpoint / >> "%syslog%"
+echo [kernel] INFO: system disk is "%disk0label%" >> "%syslog%"
 ) else (
 echo Unable to mount system disk!
 echo [kernel] ERROR: system disk mount failure >> "%syslog%"
@@ -893,13 +894,16 @@ if exist "%disk0p1%/%modsdir%/devtools.mfm" (echo DevTools are already installed
 echo Installing DevTools...
 echo.
 echo DevTools commands [%mfosver%]>"%disk0p1%/%modsdir%/devtools.mfm"
-set "mfosver=%mfosver%-dev"
 if exist "%disk0p1%/%modsdir%/devtools.mfm" (
-echo Installed successfully!
-echo Developer commands have been added to the help section.
 echo Installed package from %pkgrepo%> "%disk0p2%/%username%/%datadir%/packages/installed/001-DevTools"
 if not exist "%disk0p2%/%username%/%datadir%/packages/installed/001-DevTools" (echo Failed to register package. && echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
-echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt
+echo Installed successfully!
+echo Developer commands have been added to the help section.
+echo.
+echo The system will now reboot.
+echo.
+pause
+echo [cmd] INFO: rebooting... >> "%syslog%" && goto reboot
 )
 echo DevTools failed to install.
 echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt
@@ -953,8 +957,6 @@ if not exist "%disk0p1%/mfpkg.mcm" (echo Invalid command. && echo [cmd] ERROR: n
 title MicroflashOS Package Manager
 echo Downloading WinFlash Compatibility Layer (pID 003)
 echo.
-echo Executing installer...
-echo.
 echo Microsoft Windows Compatibility Layer for MicroflashOS >"%disk0p2%/%username%/%datadir%/packages/winflash.mfp"
 if not exist "%disk0p2%/%username%/%datadir%/packages/winflash.mfp" (echo Failed to install package. && echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 echo Installed package from %pkgrepo%> "%disk0p2%/%username%/%datadir%/packages/installed/003-WinFlash"
@@ -968,8 +970,6 @@ if not exist "%disk0p1%/mfpkg.mcm" (echo Invalid command. && echo [cmd] ERROR: n
 title MicroflashOS Package Manager
 echo Downloading Nuke (pID 004)
 echo.
-echo Executing installer...
-echo.
 echo Self destruct tool LMAO by Kenneth White >"%disk0p2%/%username%/%datadir%/packages/nuke.mfp"
 if not exist "%disk0p2%/%username%/%datadir%/packages/nuke.mfp" (echo Failed to install package. && echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 echo Installed package from %pkgrepo%> "%disk0p2%/%username%/%datadir%/packages/installed/004-Nuke"
@@ -982,8 +982,6 @@ echo.
 if not exist "%disk0p1%/mfpkg.mcm" (echo Invalid command. && echo [cmd] ERROR: no command exists >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 title MicroflashOS Package Manager
 echo Downloading dumper (pID 005)
-echo.
-echo Executing installer...
 echo.
 echo MicroflashOS Dumper by nsp >"%disk0p2%/%username%/%datadir%/packages/dumper.mfp"
 if not exist "%disk0p2%/%username%/%datadir%/packages/dumper.mfp" (echo Failed to install package. && echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
@@ -999,12 +997,10 @@ if not exist "%disk0p1%/mfpkg.mcm" (echo Invalid command. && echo [cmd] ERROR: n
 title MicroflashOS Package Manager
 echo Downloading mountvirt (pID 006)
 echo.
-echo Executing installer...
-echo.
 echo Virtual System Disk Mounter by GigaflashOS Devs >"%disk0p2%/%username%/%datadir%/packages/mountvirt.mfp"
 if not exist "%disk0p2%/%username%/%datadir%/packages/mountvirt.mfp" (echo Failed to install package. && echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 echo Installed package from %pkgrepo%> "%disk0p2%/%username%/%datadir%/packages/installed/006-mountvirt"
-if not exist "%disk0%/%usrdir/%username%/%datadir%/packages/installed/006-mountvirt" (echo Failed to register package. && echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
+if not exist "%disk0p2%/%username%/%datadir%/packages/installed/006-mountvirt" (echo Failed to register package. && echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 echo Installed /%usrdir%/%datadir%/packages/mountvirt.mfp
 echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt
 
@@ -1101,7 +1097,7 @@ echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: re
 echo.
 if not exist "%disk0p2%/%username%/%datadir%/packages/dumper.mfp" (echo Invalid command. && echo [cmd] ERROR: no command exists >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 if not exist "%disk0p1%/%modsdir%/devtools.mfm" (echo DevTools not found. Please install pID 001. && echo [dumper] ERROR: required dependency "DevTools" is missing! >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
-if not exist "%disk0p1%/%modsdir%/flashbreak.mfm" (echo This package requires F145HBR34K to function. Please install pID 002. && echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
+if not exist "%disk0p1%/%modsdir%/flashbreak.mfm" (echo F145HBR3AK not found. Please install pID 002. && echo [dumper] ERROR: required dependency "F145HBR34K" is missing! >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 title MicroflashOS Dumper
 echo MicroflashOS Dumper by nsp
 echo.
@@ -1131,11 +1127,11 @@ echo [cmd] INFO: command execution complete >> "%syslog%" && echo [cmd] INFO: re
 :mountvirt
 echo.
 if not exist "%disk0p2%/%username%/%datadir%/packages/mountvirt.mfp" (echo Invalid command. && echo [cmd] ERROR: no command exists >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
-if not exist "%disk0p1%/%modsdir%/flashbreak.mfm" (echo Invalid command. && echo [cmd] ERROR: no command exists >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 if not exist "%disk0p1%/%modsdir%/devtools.mfm" (echo DevTools not found. Please install pID 001. && echo [mountvirt] ERROR: required dependency "DevTools" is missing! >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
+if not exist "%disk0p1%/%modsdir%/flashbreak.mfm" (echo F145HBR3AK not found. Please install pID 002. && echo [mountvirt] ERROR: required dependency "F145HBR34K" is missing! >> "%syslog%" && echo [cmd] INFO: returning to prompt >> "%syslog%" && goto prompt)
 title Virtual System Disk Mounter
-echo Virtual system disks should be placed in the same directory as the Batch file.
-echo Current directory: %~p0
+echo Virtual system disks must be placed in the same directory as the Batch file.
+echo Looking in: %~p0
 echo.
 echo NOTE: Don't fill in the blank with blanks!
 echo.
