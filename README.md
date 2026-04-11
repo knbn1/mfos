@@ -1,8 +1,5 @@
 # Welcome to MicroflashOS!
 
----
-
-## What is it?
 
 Microflash Operating System (MicroflashOS or mfos) is a "fantasy operating system" made in Batch.
 It is primarily centered around the [MicroflashOS lore file](https://knbn1.github.io/sitefiles/microflash/mfos-lore.txt), as a result any names mentioned are references to the lore.
@@ -13,7 +10,7 @@ Code is licensed under the GPL-3.0 license, you are free to make your own deriva
 
 ---
 
-## Compatibility
+## Compatibility Notes
 
 I normally test under Wine (Arch Linux)
 
@@ -21,14 +18,14 @@ Sometimes it may crash on Windows 10 when typing a command. I don't know why.
 
 ---
 
-## Installation
+## Installing MicroflashOS 
 
 Download the latest release and run the Batch file.
 
-On install, the Batch file creates a "system disk" named ```MicroflashOS``` in the same location as the Batch file.
-All operating system data is stored inside that folder. MicroflashOS does NOT attempt to modify your computer further.
+On first install, the Batch file creates a "system disk" named ```MicroflashOS``` in the same location as the Batch file.
+All operating system data is stored inside that folder. MicroflashOS DOES NOT, and SHALL NOT attempt to modify your computer further. If it makes changes outside of the system disk, your Batch file has likely been tampered with. 
 
-After it is "installed" just run the Batch file every "startup".
+After it is "installed" just run the Batch file every "startup". MicroflashOS should detect the existing system disk and go straight to the prompt.
 
 ---
 
@@ -36,18 +33,18 @@ After it is "installed" just run the Batch file every "startup".
 
 In most cases, simply download the latest release's Batch file and run it.
 
-Then simply run ```recovery``` to reboot to recovery mode to reinstall.
+Then simply run ```recovery``` to reboot to recovery mode to update.
 
 Upon updating MicroflashOS, only the ```mfos``` folder is modified. 
 Any leftover user data in ```userdata``` is left intact. 
-However, this depends on what changes are introduced in the latest version and whether or not it will affect the userdata partition.
+However, this depends on what changes are introduced in the latest version and whether or not they will affect the userdata partition.
 If a release does break something, it will be made clear in the release notes.
 
 Note that if a release makes changes to the system partition, a missing/modified file is often enough to automatically reboot to recovery.
 
 ---
 
-## I need help!
+## Help Section
 
 In MicroflashOS, you can type ```help``` to get a list of all available commands. Packages can choose to add their own commands to this section.
 
@@ -86,7 +83,7 @@ Installing DevTools also opens up some more commands that can be viewed via ```h
 
 ---
 
-## Jailbreak???
+## Flashbreak
 
 As part of the lore, MicroflashOS has a jailbreak called Flashbreak, which has been faithfully recreated here. 
 Some packages may require Flashbreak to function properly.
@@ -95,24 +92,24 @@ Install package ID ```002```.
 
 ---
 
-## Uninstallation
+## Uninstalling MicroflashOS 
 
 Simply delete the MicroflashOS Batch file and the folder named ```MicroflashOS```
 
 ---
 
-## Reset to defaults (remove ALL user settings)
+## Resetting to Defaults
 
-Run ```homewipe``` after booting. A new userdata partition will be generated on next boot.
-Please be careful with this command to avoid data loss!
-
----
-
-# Developer stuffs
+Run ```homewipe``` after booting to remove ALL user settings. A new userdata partition will be generated after rebooting.
+Please be careful with this command to avoid unintentional data loss!
 
 ---
 
-## File formats
+# Technicalities for Nerds
+
+---
+
+## File Formats
 
 MicroflashOS utilises some proprietary file formats:
 
@@ -124,7 +121,7 @@ MicroflashOS utilises some proprietary file formats:
 
 ## Directories
 
-The system disk consists of two "partitions": ```mfos``` and ```userdata```
+The system disk contains two "partitions": ```mfos``` and ```userdata```
 
 - ```mfos``` contains the operating system itself. Sysmodules are stored here.
 - ```userdata``` contains, well, user data.
@@ -147,7 +144,7 @@ Some noteworthy ones:
 
 ---
 
-## Reading log messages (as of 2026.04.01)
+## Reading Log Messages (as of 2026.04.01)
 
 By default a file named ```mfos-log.txt``` is created in the same directory as the Batch file. 
 
@@ -168,4 +165,5 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - More jailbreak-y stuff (I have some handwritten lore pages that need to be released for that though)
 - Bug fixes (never gets old!), mostly just looking for any weird situations
 - Future-proofing (making things more universal and easier to customize)
+- Guide to Programming For MicroflashOS 
 
