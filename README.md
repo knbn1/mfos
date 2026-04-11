@@ -101,9 +101,9 @@ Simply delete the MicroflashOS Batch file and the folder named ```MicroflashOS``
 
 ---
 
-## Reset to "stock" (remove ALL user settings)
+## Reset to defaults (remove ALL user settings)
 
-Run ```homewipe```. A new userdata partition will be generated on next boot.
+Run ```homewipe``` after booting. A new userdata partition will be generated on next boot.
 Please be careful with this command to avoid data loss!
 
 ---
@@ -117,7 +117,7 @@ Please be careful with this command to avoid data loss!
 MicroflashOS utilises some proprietary file formats:
 
 - ```.mcm```: MicroflashOS Core Module, reserved for critical system modules (sysmodules) that are required for MicroflashOS. **It is recommended you do not modify files with this extension.**
-- ```.mfm```: MicroflashOS Module, these are non-critical sysmodules that don't affect the system *much* but you should still be careful with them.
+- ```.mfm```: MicroflashOS Module, these are non-critical sysmodules that don't affect the core system, however modifying these may break packages as they use this sysmodule format.
 - ```.mfp```: MicroflashOS Package, used by packages installed from ```mfpkg```. Deleting these will leave the package in a broken/unusable state, which can only be resolved by reinstalling the package.
 
 ---
@@ -140,15 +140,16 @@ Note that accessing and/or modifying these requires DevTools.
 
 Some noteworthy ones:
 
-- ```slowboot```: Add pauses during boot sequence, allowing the user to see the boot process in greater detail as it automatically clears itself once the shell has been initialized.
+- ```slowboot```: Add pauses during boot sequence, allowing the user to see the boot process in greater detail. Normally the verbose boot process is cleared from the screen once the shell has been initialized, but this toggle disables this behavior.
 - ```showdir```: Show the current directory above the prompt. Useful for navigating complex directory trees.
+- ```nolog``` Disables the log file (more info in the next section)
+
 
 ---
 
 ## Reading log messages (as of 2026.04.01)
 
 By default a file named ```mfos-log.txt``` is created in the same directory as the Batch file. 
-(This behavior can be disabled with the ```nolog``` toggle.)
 
 Log messages follow this format:
 
@@ -166,5 +167,5 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - More repositories (maybe have a distinction between official packages from Kenneth and GigaflashOS CFW packages?)
 - More jailbreak-y stuff (I have some handwritten lore pages that need to be released for that though)
 - Bug fixes (never gets old!), mostly just looking for any weird situations
-- Future-proofing (making things more universal and easier to modify)
+- Future-proofing (making things more universal and easier to customize)
 
