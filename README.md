@@ -23,7 +23,9 @@ Sometimes it may crash on Windows 10 when typing a command. I don't know why.
 Download the latest release and run the Batch file.
 
 On first install, the Batch file creates a "system disk" named ```MicroflashOS``` in the same location as the Batch file.
-All operating system data is stored inside that folder. MicroflashOS DOES NOT, and SHALL NOT attempt to modify your computer further. If it makes changes outside of the system disk, your Batch file has likely been tampered with. 
+All operating system data is stored inside that folder. 
+
+MicroflashOS DOES NOT, and SHALL NOT attempt to modify your computer further. If it makes changes outside of the system disk, your Batch file has likely been tampered with. In that case, redownload the latest release from GitHub Releases.
 
 After it is "installed" just run the Batch file every "startup". MicroflashOS should detect the existing system disk and go straight to the prompt.
 
@@ -125,7 +127,7 @@ The system disk contains two "partitions": ```mfos``` and ```userdata```
 - ```mfos``` contains the operating system itself. Sysmodules are stored here.
 - ```userdata``` contains, well, user data.
   Inside each user directory (set by the Batch variable ```%username%```) is a directory named ```mfosdata``` that contains user-specific packages and toggles.
-  If ```mfosdata``` is ever corrupted it will simply be regenerated on next boot. Note that user settings and/or packages may be missing.
+  If ```mfosdata``` is ever corrupted it will simply be regenerated on next boot. Note that some settings and packages may be missing.
 
 ---
 
@@ -136,7 +138,7 @@ Note that accessing and/or modifying these requires DevTools.
 
 Some noteworthy ones:
 
-- ```slowboot```: Add pauses during boot sequence, allowing the user to see the boot process in greater detail. Normally the verbose boot process is cleared from the screen once the shell has been initialized, but this toggle disables this behavior.
+- ```slowboot```: Add pauses during boot sequence, allowing the user to see the boot process in greater detail. Normally the (verbose) boot process is cleared from the screen once the shell has been initialized, but ```slowboot``` disables this behavior.
 - ```showdir```: Show the current directory above the prompt. Useful for navigating complex directory trees.
 - ```nolog``` Disables the log file (more info in the next section)
 
@@ -164,5 +166,6 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - More jailbreak-y stuff (I have some handwritten lore pages that need to be released for that though)
 - Bug fixes (never gets old!), mostly just looking for any weird situations
 - Future-proofing (making things more universal and easier to customize)
-- Guide to Programming For MicroflashOS 
+- Guide to Programming For MicroflashOS
+- Command history 
 
