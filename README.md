@@ -25,7 +25,7 @@ Download the latest release and run the Batch file.
 On first install, the Batch file creates a "system disk" named ```MicroflashOS``` in the same location as the Batch file.
 All operating system data is stored inside that folder. 
 
-MicroflashOS DOES NOT, and SHALL NOT attempt to modify your computer further. If it makes changes outside of the system disk, your Batch file has likely been tampered with. In that case, redownload the latest release from GitHub Releases.
+MicroflashOS DOES NOT, and SHALL NOT attempt to modify your computer further. Check the source code yourself if you think I'm lying. If it makes changes outside of the system disk, your Batch file has likely been tampered with. In that case, redownload the latest release from GitHub Releases.
 
 After it is "installed" just run the Batch file every "startup". MicroflashOS should detect the existing system disk and go straight to the prompt.
 
@@ -39,10 +39,10 @@ Then simply run ```recovery``` to reboot to recovery mode to update.
 
 Upon updating MicroflashOS, only the ```mfos``` folder is modified. 
 Any leftover user data in ```userdata``` is left intact. 
-However, this depends on what changes are introduced in the latest version and whether or not they will affect the userdata partition.
+However, this depends on what changes are introduced in the latest version and whether or not they will affect the ```userdata``` partition.
 If a release does break something, it will be made clear in the release notes.
 
-Note that if a release makes changes to the system partition, a missing/modified file is often enough to automatically reboot to recovery.
+Note that if a release makes changes to the ```mfos``` partition, a missing/modified file is often enough to automatically reboot to recovery.
 
 ---
 
@@ -58,7 +58,7 @@ Here are some useful commands to start with:
 - ```mkfile```: Create a file
 - ```del```: Delete file/directory
 - ```cd```: Change directory
-- ```list```: List accessible files and directories *from current location* (similar to Linux ```ls``` or Windows ```dir```)
+- ```list```: List accessible files and directories *from current location* (similar to Linux ```ls``` or Windows ```dir``` commands)
 
 ---
 
@@ -102,7 +102,7 @@ Simply delete the MicroflashOS Batch file and the folder named ```MicroflashOS``
 
 ## Resetting to Defaults
 
-Run ```homewipe``` after booting to remove ALL user settings. A new userdata partition will be generated after rebooting.
+Run ```homewipe``` after booting to remove ALL user settings. A new ```userdata``` partition will be formatted after rebooting.
 Please be careful with this command to avoid unintentional data loss!
 
 ---
@@ -167,5 +167,7 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - Bug fixes (never gets old!), mostly just looking for any weird situations
 - Future-proofing (making things more universal and easier to customize)
 - Guide to Programming For MicroflashOS
-- Command history 
+- Command history
+- Compact and shrink code
+- Recycle Bin
 
