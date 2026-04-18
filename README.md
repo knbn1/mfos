@@ -170,4 +170,5 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - Command history
 - Compact and shrink code
 - Recycle Bin
+- Move toggles to variable-based settings
 
