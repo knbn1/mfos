@@ -25,7 +25,7 @@ Download the latest release and run the Batch file.
 On first install, the Batch file creates a "system disk" named ```MicroflashOS``` in the same location as the Batch file.
 All operating system data is stored inside that folder. 
 
-MicroflashOS DOES NOT, and SHALL NOT attempt to modify your computer further. Check the source code yourself if you think I'm lying. If it makes changes outside of the system disk, your Batch file has likely been tampered with. In that case, redownload the latest release from GitHub Releases.
+MicroflashOS DOES NOT attempt to modify your computer further. *Check the source code yourself if you think I'm lying.* If it makes changes outside of the system disk, your Batch file has likely been tampered with. In that case, re-download the latest official release from [GitHub Releases](https://github.com/knbn1/mfos/releases).
 
 After it is "installed" just run the Batch file every "startup". MicroflashOS should detect the existing system disk and go straight to the prompt.
 
