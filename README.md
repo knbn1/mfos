@@ -54,10 +54,9 @@ Here are some useful commands to start with:
 
 - ```about```: Shows some system info
 - ```clock```: Shows date and time
-- ```mkdir```: Create directory
-- ```mkfile```: Create a file (disabled as of 2026.04.25)
-- ```del```: Delete file/directory
-- ```cd```: Change directory
+- ```mkdir [directory]```: Create directory
+- ```delete [directory]```: Delete file/directory
+- ```cd [directory]```: Change directory
 - ```list```: List accessible files and directories *from current location* (similar to Linux ```ls``` or Windows ```dir``` commands)
 
 ---
@@ -77,11 +76,10 @@ This behavior can be disabled with the ```incognito``` toggle. Read about toggle
 MicroflashOS includes a "package manager" called ```mfpkg```. 
 It handles standalone packages in the ```.mfp``` format, otherwise it acts as a bootstrap for installers (such as the one used to install [DevTools](https://github.com/knbn1/mfos#devtools-developer-tools))
 
-- List available packages in repository: ```mfpkg-repo-available```.
+- List available packages in repository: ```mfpkg available```
   The included repository as of the latest stable release is the *GigaflashOS Unified Repository [Revision 1]*
-- List installed packages: ```mfpkg-list```
-- Install/uninstall package: ```mfpkg-install``` or ```mfpkg-uninstall``` respectively.
-- QUICKLY install/uninstall package: ```mfpkg-dl-[package ID]``` or ```mfpkg-rm-[package ID]``` respectively.
+- List installed packages: ```mfpkg list```
+- Install/uninstall package: ```mfpkg install [package ID]``` or ```mfpkg uninstall [package ID]``` respectively.
 
 ---
 
@@ -154,8 +152,6 @@ Some noteworthy ones:
 - ```nolog```: Disables the log file (more info in the next section)
 - ```incognito```: Disables logging command history
 - ```allowdisabled```: Enables some disabled commands
-- ```novercheck```: Disable version check on boot (as of 2026.04.28)
-
 
 ---
 
@@ -183,5 +179,6 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - Compact and shrink code
 - Recycle Bin
 - Move toggles to variable-based settings
-- Add limitations to prompt to prevent out of bounds access to some functions 
+- Add command-specific help sections
+- Offload packages to actual files
 
