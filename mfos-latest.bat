@@ -405,7 +405,7 @@ set "binary="
 
 :: Command whitelist
 
-set "cmdlist=about help clock clear reboot recovery shutdown mkdir delete list cd home homewipe mfpkg devtools-uninstall mountsys modules toggles flashbreak-uninstall flashbreak-reboot nuke dumper winflash mountvirt getargs"
+set "cmdlist=about help clock clear reboot recovery shutdown mkdir delete list cd home homewipe mfpkg devtools-uninstall mountsys modules toggles flashbreak-uninstall flashbreak-reboot nuke dumper winflash mountvirt getargs update"
 
 :: receive input from the user:
 
@@ -450,6 +450,7 @@ call :cmdok
 echo Utilities:
 echo.
 echo about: Show some system info
+echo update: Automatically updates to the latest version
 echo clock: Print current date and time
 echo clear: Clear console output
 echo.
@@ -516,6 +517,63 @@ if exist "%disk0p1%/mfpkg.mcm" (
     )
 )
 goto execdone
+
+:: auto updater
+:update
+
+:: updater links
+set "batLink=https://raw.githubusercontent.com/knbn1/mfos/refs/heads/main/mfos-latest.bat"
+set "metaLink=https://raw.githubusercontent.com/knbn1/mfos/refs/heads/main/mfos-latest.meta"
+
+set "latestVersion="
+set /a metaLineCount=0
+
+call :curl_check
+
+echo Checking for latest updates...
+
+for /f "delims=" %%i in ('curl -s %metaLink%') do (
+    set /a metaLineCount+=1
+    :: can expand depending on .meta file
+    if !metaLineCount! == 1 (
+        set "latestVersion=%%i"
+    )
+)
+
+if "!latestVersion!"=="" (
+    echo [ERROR] No data received.
+    goto prompt
+) else (
+    echo [SUCCESS] Latest Version Found: !latestVersion!
+)
+
+echo Downloading latest version...
+
+curl -s -o mfos-latest.bat %batLink%
+
+echo Downloading completed, installing...
+
+call "mfos-latest.bat" :reboot
+
+echo Update completed!
+echo.
+echo Made by @nglammm
+
+call "mfos-latest.bat" :prompt
+
+goto :eof
+
+:: check for curl so we can do online stuffs
+:curl_check
+echo [INFO] Checking for curl...
+curl --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [INFO] curl not found. Installing via Winget...
+    winget install -e --id curl.curl --silent --accept-source-agreements --accept-package-agreements
+) else (
+    echo [OK] curl is already installed.
+)
+goto :eof
 
 :: About me
 
