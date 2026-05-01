@@ -181,4 +181,7 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - Move toggles to variable-based settings
 - Add command-specific help sections
 - Offload packages to actual files
-
+- Make ```homewipe``` user-specific
+- Add support for creating/deleting users without reliance on Windows
+- Third-party package support
+- Dynamically install updates with ```curl```
