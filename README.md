@@ -33,7 +33,9 @@ After it is "installed" just run the Batch file every "startup". MicroflashOS sh
 
 ## Updating MicroflashOS
 
-As of 2026.04.28, MicroflashOS updates are handled automatically on boot. Just download the latest Batch file and run it. The program should figure out the rest.
+For versions 2026.05.02 and later, MicroflashOS can be updated automatically with command ```update``` which will update the user to the latest version.
+
+For versions 2026.04.28 or earlier, you would need to manually install MicroflashOS's bat files for update. Updates are handled automatically on boot. Just download the latest Batch file and run it. The program should figure out the rest.
 
 If you are on an older version, you may update manually by using the ```recovery``` command.
 
