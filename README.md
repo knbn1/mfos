@@ -77,7 +77,7 @@ MicroflashOS includes a "package manager" called ```mfpkg```.
 It handles standalone packages in the ```.mfp``` format as well as user modules in the ```.mfm``` format, otherwise it acts as a bootstrap for installers (such as the one used to install [DevTools](https://github.com/knbn1/mfos#devtools-developer-tools))
 
 - List available packages in repository: ```mfpkg available```
-  The included repository as of the latest stable release is the *GigaflashOS Unified Repository [Revision 1]*
+  The included repository as of the latest stable release is the *GigaflashOS Unified Repository [Revision 2]*
 - List installed packages: ```mfpkg list```
 - Install/uninstall package: ```mfpkg install [package ID]``` or ```mfpkg uninstall [package ID]``` respectively.
 
