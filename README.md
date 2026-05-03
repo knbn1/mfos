@@ -55,8 +55,8 @@ Here are some useful commands to start with:
 - ```about```: Shows some system info
 - ```clock```: Shows date and time
 - ```mkdir [directory]```: Create directory
-- ```delete [directory]```: Delete file/directory
-- ```cd [directory]```: Change directory
+- ```delete [file/directory] [thing]```: Delete file/directory
+- ```cd [path]```: Change directory
 - ```list```: List accessible files and directories *from current location* (similar to Linux ```ls``` or Windows ```dir``` commands)
 
 ---
