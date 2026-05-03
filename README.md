@@ -74,7 +74,7 @@ This behavior can be disabled with the ```incognito``` toggle. Read about toggle
 ## MicroflashOS Package Manager
 
 MicroflashOS includes a "package manager" called ```mfpkg```. 
-It handles standalone packages in the ```.mfp``` format, otherwise it acts as a bootstrap for installers (such as the one used to install [DevTools](https://github.com/knbn1/mfos#devtools-developer-tools))
+It handles standalone packages in the ```.mfp``` format as well as user modules in the ```.mfm``` format, otherwise it acts as a bootstrap for installers (such as the one used to install [DevTools](https://github.com/knbn1/mfos#devtools-developer-tools))
 
 - List available packages in repository: ```mfpkg available```
   The included repository as of the latest stable release is the *GigaflashOS Unified Repository [Revision 1]*
@@ -124,7 +124,7 @@ Please be careful with this command to avoid unintentional data loss!
 MicroflashOS utilises some proprietary file formats:
 
 - ```.mcm```: MicroflashOS Core Module, reserved for critical system modules (sysmodules) that are required for MicroflashOS. **It is recommended you do not modify files with this extension.**
-- ```.mfm```: MicroflashOS Module, these are non-critical sysmodules that don't affect the core system, however modifying these may break packages using this sysmodule format.
+- ```.mfm```: MicroflashOS Module, these are user-installed modules from ```mfpkg```.
 - ```.mfp```: MicroflashOS Package, used by packages installed from ```mfpkg```. Deleting these will leave the package in a broken/unusable state, which can only be resolved by reinstalling the package.
 
 ---
@@ -133,9 +133,9 @@ MicroflashOS utilises some proprietary file formats:
 
 The system disk contains two "partitions": ```mfos``` and ```userdata```
 
-- ```mfos``` contains the operating system itself. Sysmodules are stored here.
+- ```mfos``` contains the operating system itself. Core modules are stored here.
 - ```userdata``` contains, well, user data.
-  Inside each user directory (set by the generic Batch variable ```%username%```) is a directory named ```mfosdata``` that contains user-specific packages and toggles.
+  Inside each user directory (set by the generic Batch variable ```%username%```) is a directory named ```mfosdata``` that contains user-specific stuff that the system uses.
   If ```mfosdata``` is ever corrupted it will simply be regenerated on next boot. Note that some settings and packages may be missing.
 
 ---
