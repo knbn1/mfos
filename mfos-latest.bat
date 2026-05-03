@@ -6,9 +6,9 @@
 
 :: Define some version strings
 
-set "mfosver=2026.05.02"
-set "fbver=5.1"
-set "pkgrepo=GigaflashOS Unified Repository [Revision 1]"
+set "mfosver=2026.05.03"
+set "fbver=5.2"
+set "pkgrepo=GigaflashOS Unified Repository [Revision 2]"
 
 :: Define default directories
 
@@ -20,7 +20,8 @@ set "disk0label=MicroflashOS"
 
 :: Boot process stage 0 - Bootloader
 
-:reboot
+:bootstagezero
+
 cd /d "%~dp0"
 title MicroflashOS Bootloader
 
@@ -339,12 +340,10 @@ if not exist "%disk0p1%/cmd.mcm" (
 echo Welcome to MicroflashOS!
 echo [cmd] INFO: initialized prompt >>"%logfile%"
 echo.
-if exist "%usrmods%/devtools.mfm" (echo Developer Mode)
-if "%fbloaded%"=="yessir" (echo F145HBR34K %fbver% && echo.)
 if not exist "%usrdir%" (
     echo Userdata for user %username% not found.
     echo [kusrinit] ERROR: no userdata for user %username% >>"%logfile%"
-    call :halt
+    echo.
     goto reboot
 )
 echo Logged in as %username%
@@ -357,12 +356,21 @@ echo Commands are not case-sensitive.
 
 :prompt
 
-echo.
-
 if not exist "%disk0p1%/cmd.mcm" (
     echo [kernel] ERROR: could not load /%sysdir%/cmd.mcm >>"%logfile%"
     echo Command line could not be loaded.
     goto :pauseexit
+)
+
+:: check if a reboot has been enforced
+
+if "%enforcereboot%" == "true" (
+    echo The system will now reboot.
+    call :halt
+    set "enforcereboot=false"
+    title Rebooting...
+    echo [kernel] INFO: intercepted reboot request >>"%logfile%"
+    goto bootstagezero
 )
 
 :: Titlebar stuff
@@ -387,9 +395,11 @@ set "command="
 
 :: Command whitelist
 
-set "cmdlist=about help clock clear reboot recovery shutdown mkdir rename delete list cd home homewipe mfpkg devtools-uninstall mountsys modules toggles flashbreak-uninstall flashbreak-reboot nuke dumper winflash mountvirt getargs getvars"
+set "cmdlist=about help clock clear reboot shutdown mkdir rename delete list cd home homewipe mfpkg mountsys modules toggles nuke dumper winflash mountvirt getargs getvars"
 
 :: receive input from the user:
+
+echo.
 
 echo [cmd] INFO: load user prompt >>"%logfile%"
 echo [cmd] INFO: waiting for user input >>"%logfile%"
@@ -416,7 +426,8 @@ for %%w in (%cmdlist%) do (
 )
 if "%found%"=="nope" (
     echo.
-    goto nocommand
+    call :nocommand
+    goto prompt
 )
 :: use call command
 echo.
@@ -436,8 +447,7 @@ echo clear: Clear console output
 echo.
 echo Power options:
 echo.
-echo reboot: Reboot
-echo recovery: Reboot to recovery mode
+echo reboot [recovery]: Reboot
 echo shutdown: Power off
 echo.
 echo [help] INFO: load help section for /%sysdir%/core.mcm >>"%logfile%"
@@ -464,14 +474,6 @@ if exist "%usrmods%/devtools.mfm" (
     echo getargs [arguments]: Sanity check to analyse arguments passed
     echo getvars: Get ALL environment variables
     echo [help] INFO: load help section for /%sysdir%/%modsdir%/devtools.mfm >>"%logfile%"
-    if "%fbloaded%"=="yessir" (
-        echo.
-        echo F145HBR34K commands:
-        echo.
-        echo flashbreak-uninstall: Uninstall jailbreak
-        echo flashbreak-reboot: Force reboot
-        echo [help] INFO: load help section for /%sysdir%/%modsdir%/flashbreak.mfm >>"%logfile%"
-    )
 )
 if exist "%disk0p1%/mfpkg.mcm" (
     echo.
@@ -552,6 +554,17 @@ goto execdone
 
 :: Power options
 
+:reboot
+if not exist "%disk0p1%/core.mcm" (call :nocommand)
+call :cmdok
+if "%1" == "recovery" (
+    echo Rebooting to recovery mode...
+    echo [kernel] INFO: rebooting to recovery >>"%logfile%"
+    goto recovery
+)
+set "enforcereboot=true"
+goto :eof
+
 :shutdown
 if not exist "%disk0p1%/core.mcm" (goto nocommand)
 call :cmdok
@@ -569,18 +582,18 @@ title File Manager
 if "%1"=="" (
     echo Make what?
     echo [fsutils] ERROR: no directory provided >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 if exist "%1/" (
     echo Directory "%1" already exists!
     echo [fsutils] ERROR: directory "%1" already exists >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 mkdir "%1"
 if not exist "%1/" (
     echo Failed to create directory "%1"!
     echo [fsutils] ERROR: failed to create directory "%1" >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 echo Created directory "%1"
 echo [fsutils] INFO: created directory "%1" >>"%logfile%"
@@ -593,23 +606,23 @@ title File Manager
 if "%1"=="" (
     echo [target] [new name]
     echo [fsutils] ERROR: no option selected >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 if not exist "%1" (
     echo Target does not exist!
     echo [fsutils] ERROR: target "%1" does not exist >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 if exist "%2" (
     echo An object with the same name is already present!
     echo [fsutils] ERROR: new name "%2" matches an existing name >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 ren "%1" "%2"
 if not exist "%2" (
     echo Failed to rename "%1"!
     echo [fsutils] ERROR: failed to rename "%1" >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 echo Renamed "%1" to "%2"
 echo [fsutils] INFO: renamed "%1" to "%2" >>"%logfile%"
@@ -622,13 +635,13 @@ title File Manager
 if "%1"=="" (
     echo [file/directory]
     echo [fsutils] ERROR: no option selected >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 if "%1"=="file" (
     if not exist "%2" (
         echo File does not exist!
         echo [fsutils] ERROR: specified file "%1" does not exist >>"%logfile%"
-        goto prompt
+        goto execdone
     )
     del "%2" /f /q
     if not exist "%2" (
@@ -638,13 +651,13 @@ if "%1"=="file" (
     )
     echo Failed to delete file!
     echo [fsutils] ERROR: failed to delete file "%2" >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 if "%1"=="directory" (
     if not exist "%2" (
         echo Directory does not exist!
         echo [fsutils] ERROR: specified directory "%1" does not exist >>"%logfile%"
-        goto prompt
+        goto execdone
     )
     rd "%2" /s /q
     if not exist "%2/" (
@@ -654,11 +667,11 @@ if "%1"=="directory" (
     )
     echo Failed to delete directory!
     echo [fsutils] ERROR: failed to delete directory "%2" >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 echo Invalid arguments.
 echo [fsutils] ERROR: invalid arguments >>"%logfile%"
-goto prompt
+goto execdone
 
 :list
 if not exist "%disk0p1%/fsutils.mcm" (goto nocommand)
@@ -681,12 +694,12 @@ title File Manager
 if "%1"=="" (
     echo Change to where?
     echo [fsutils] ERROR: no path provided >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 if not exist "%1/" (
     echo Directory invalid!
     echo [fsutils] ERROR: invalid path >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 cd "%1"
 echo Changed directory to "%1"
@@ -704,7 +717,7 @@ if not exist "%usrdir%" (
     echo.
     echo Userdata for current user not found!
     echo [fsutils] ERROR: could not find userdata for current user >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 cd /d "%usrdir%"
 echo Welcome home.
@@ -721,60 +734,33 @@ echo This effectively returns MicroflashOS to a "clean" state.
 echo Back up any data before continuing!
 echo.
 call :userauth
-echo.
-if not exist "%disk0p2%" (
-    echo Userdata partition not found!
-    echo [fsutils] ERROR: could not load userdata partition >>"%logfile%"
-    goto prompt
-)
-echo Found users:
-dir /a:d /b "%disk0p2%"
-echo.
-echo Wiping userdata...
-cd /d "%disk0%"
-rd "%userdata%" /s /q
-if exist "%disk0p2%" (
+if "%authorized%" == "true" (
     echo.
-    echo Userdata wipe failed!
-    echo [fsutils] ERROR: userdata partition wipe failed >>"%logfile%"
-    goto prompt
+    if not exist "%disk0p2%" (
+        echo Userdata partition not found!
+        echo [fsutils] ERROR: could not load userdata partition >>"%logfile%"
+        goto execdone
+    )
+    echo Found users:
+    dir /a:d /b "%disk0p2%"
+    echo.
+    echo Wiping userdata...
+    cd /d "%disk0%"
+    rd "%userdata%" /s /q
+    if exist "%disk0p2%" (
+        echo.
+        echo Userdata wipe failed!
+        echo [fsutils] ERROR: userdata partition wipe failed >>"%logfile%"
+        goto execdone
+    )
+    echo [fsutils] INFO: userdata wipe successful >>"%logfile%"
+    echo Wipe succeeded.
+    echo.
+    goto reboot
 )
-echo [fsutils] INFO: userdata wipe successful >>"%logfile%"
-echo Wipe succeeded.
-echo The system will now reboot.
-call :halt
-goto reboot
+goto :eof
 
 :: DevTools
-
-:devtools-uninstall
-if not exist "%usrmods%/devtools.mfm" (goto nocommand)
-call :cmdok
-title MicroflashOS DevTools Uninstaller
-echo Uninstalling DevTools...
-echo.
-call :userauth
-echo.
-echo [devtools] INFO: begin uninstallation >>"%logfile%"
-cd /d "%usrmods%/"
-del devtools.mfm /f
-if exist "%usrmods%/devtools.mfm" (
-    echo Failed to delete DevTools module!
-    echo [devtools] ERROR: could not delete devtools module >>"%logfile%"
-    goto prompt
-)
-echo [devtools] INFO: deleted module devtools.mfm >>"%logfile%"
-cd /d "%pkgmeta%/"
-del 001-DevTools /f
-if exist "%pkgmeta%/001-DevTools" (goto unregfail)
-echo [devtools] INFO: unregistered devtools package >>"%logfile%"
-echo DevTools uninstalled!
-echo You will not be able to use developer commands anymore.
-echo [devtools] INFO: uninstallation complete >>"%logfile%"
-echo.
-echo The system will reboot.
-call :halt
-goto reboot
 
 :mountsys
 if not exist "%usrmods%/devtools.mfm" (goto nocommand)
@@ -783,7 +769,7 @@ title MicroflashOS System Partition Mounter
 if not exist "%disk0p1%/" (
     echo System partition not found!
     echo [mountsys] ERROR: system partition not found >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 echo Mounting disk0p1...
 echo.
@@ -814,20 +800,20 @@ call :cmdok
 if "%1"=="" (
     echo [create/delete/enabled/list]
     echo [toggle-manager] ERROR: no option selected >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 if "%1"=="create" (
     if "%2"=="" (
         echo Please enter a toggle name.
         echo [toggle-manager] ERROR: no toggle specified >>"%logfile%"
-        goto prompt
+        goto execdone
     )
     echo "%2">"%toggles%/%2"
     if not exist "%toggles%/%2" (
         echo Failed to write toggle "%2"!
         echo [toggle-manager] ERROR: could not write toggle "%2" >>"%logfile%"
         echo.
-        goto prompt
+        goto execdone
     )
     echo Toggle "%2" written.
     echo [toggle-manager] INFO: written toggle "%2" >>"%logfile%"
@@ -837,18 +823,18 @@ if "%1"=="delete" (
     if "%2"=="" (
         echo Please enter a toggle name.
         echo [toggle-manager] ERROR: no toggle specified >>"%logfile%"
-        goto prompt
+        goto execdone
     )
     if not exist "%toggles%/%2" (
         echo Toggle "%2" does not exist!
         echo [toggle-manager] ERROR: toggle "%2" nonexistent >>"%logfile%"
-        goto prompt
+        goto execdone
     )
     del "%toggles%/%2" /f /q
     if exist "%toggles%/%2" (
         echo Failed to delete toggle "%2"!
         echo [toggle-manager] ERROR: could not delete toggle "%2" >>"%logfile%"
-        goto prompt
+        goto execdone
     )
     echo Toggle "%2" deleted.
     echo [toggle-manager] INFO: deleted toggle "%2" >>"%logfile%"
@@ -881,49 +867,7 @@ if "%1"=="list" (
 )
 echo Invalid arguments!
 echo [toggle-manager] ERROR: invalid arguments >>"%logfile%"
-goto prompt
-
-:: Jailbreak
-
-:flashbreak-uninstall
-if not exist "%usrmods%/flashbreak.mfm" (goto nocommand)
-call :cmdok
-if not exist "%usrmods%/devtools.mfm" (call :nodev)
-echo F145HBR34K Uninstaller
-echo F145HBR34K version: %fbver%
-echo MicroflashOS version: %mfosver%
-echo.
-echo Uninstalling jailbreak...
-echo.
-call :userauth
-echo.
-cd /d "%usrmods%"
-del flashbreak.mfm /f /q
-if exist "%usrmods%/flashbreak.mfm" (
-    echo Failed to delete F145HBR34K module!
-    echo [flashbreak] ERROR: could not delete flashbreak module >>"%logfile%"
-    goto prompt
-)
-echo [flashbreak] INFO: deleted module flashbreak.mfm >>"%logfile%"
-cd /d "%pkgmeta%"
-del 002-F145HBR34K /f /q
-if exist "%pkgmeta%/002-F145HBR34K" (goto unregfail)
-echo.
-echo Jailbreak uninstalled!
-echo.
-echo All F145HBR34K commands will be invalidated.
-echo [flashbreak] INFO: uninstallation complete >>"%logfile%"
-echo.
-echo The system will reboot.
-call :halt
-goto reboot
-
-:flashbreak-reboot
-if not exist "%usrmods%/flashbreak.mfm" (goto nocommand)
-call :cmdok
-echo Forcing a reboot...
-echo.
-goto reboot
+goto execdone
 
 :: Package manager functions
 
@@ -942,7 +886,6 @@ if "%1"=="list" (
 )
 if "%1"=="available" (
     echo Repository: %pkgrepo%
-    if "%pkgrepo%" == "GigaflashOS Unified Repository [Revision 1]" (
     echo.
     echo ID 001: MicroflashOS DevTools
     echo ID 002: F145HBR34K jailbreak
@@ -950,7 +893,7 @@ if "%1"=="available" (
     echo ID 004: nuke
     echo ID 005: MicroflashOS Dumper
     echo ID 006: Virtual System Disk Mounter
-    echo [mfpkg] INFO: showing details for repository "%pkgrepo%" >>"%logfile%")
+    echo [mfpkg] INFO: showing details for repository "%pkgrepo%" >>"%logfile%"
     endlocal
     goto execdone
 )
@@ -959,7 +902,7 @@ if "%1"=="install" (
         echo No package ID specified.
         echo [mfpkg] ERROR: no package ID specified >>"%logfile%"
         endlocal
-        goto prompt
+        goto execdone
     )
     set "pkgtarget=%2"
     set "pkgcmd=mfpkg-dl-!pkgtarget!"
@@ -972,7 +915,7 @@ if "%1"=="install" (
         echo Package ID is invalid.
         echo [mfpkg] ERROR: installation pID invalid >>"%logfile%"
         endlocal
-        goto prompt
+        goto execdone
     )
     set "pkgfound="
     goto !pkgcmd!
@@ -982,7 +925,7 @@ if "%1"=="uninstall" (
         echo No package ID specified.
         echo [mfpkg] ERROR: no package ID specified >>"%logfile%"
         endlocal
-        goto prompt
+        goto execdone
     )
     set "pkgtarget=%2"
     set "pkgcmd=mfpkg-rm-!pkgtarget!"
@@ -994,14 +937,14 @@ if "%1"=="uninstall" (
     if "!pkgfound!"=="false" (
         echo Package ID is invalid.
         echo [mfpkg] ERROR: installation pID invalid >>"%logfile%"
-        goto prompt
+        goto execdone
     )
     set "pkgfound="
     goto !pkgcmd!
 )
 echo Invalid arguments.
 echo [mfpkg] ERROR: invalid arguments >>"%logfile%"
-goto prompt
+goto execdone
 
 :: Installers
 
@@ -1021,16 +964,14 @@ if not exist "%usrmods%/devtools.mfm" (
     echo Failed to install DevTools module.
     echo [mfpkg] ERROR: failed to install /%sysdir%/%modsdir%/devtools.mfm >>"%logfile%"
     endlocal
-    goto prompt
+    goto execdone
 )
 echo %pkgrepo%>"%pkgmeta%/001-DevTools"
 if not exist "%pkgmeta%/001-DevTools" (goto inregfail)
 echo Installed successfully.
 echo Developer commands have been added to the help section.
-echo.
-echo The system will now reboot.
-call :halt
 endlocal
+echo.
 goto reboot
 
 :mfpkg-dl-002
@@ -1052,16 +993,13 @@ echo F145HBR34K jailbreak [%mfosver%]>"%usrmods%/flashbreak.mfm"
 if not exist "%usrmods%/flashbreak.mfm" (
     echo Failed to install F145HBR34K module.
     echo [mfpkg] ERROR: failed to install /%sysdir%/%modsdir%/flashbreak.mfm >>"%logfile%"
-    goto prompt
+    goto execdone
 )
 echo %pkgrepo%>"%pkgmeta%/002-F145HBR34K"
 if not exist "%pkgmeta%/002-F145HBR34K" (goto inregfail)
 echo Installed successfully.
-echo.
-echo F145HBR34K commands have been added to the help section.
-echo The system will now reboot.
-call :halt
 endlocal
+echo.
 goto reboot
 
 :mfpkg-dl-003
@@ -1113,6 +1051,64 @@ if not exist "%pkgmeta%/006-mountvirt" (goto inregfail)
 goto instdone
 
 :: Uninstallers
+
+:mfpkg-rm-001
+if not exist "%usrmods%/devtools.mfm" (goto nocommand)
+call :cmdok
+title MicroflashOS DevTools Uninstaller
+echo Uninstalling DevTools...
+echo.
+call :userauth
+echo.
+echo [devtools] INFO: begin uninstallation >>"%logfile%"
+cd /d "%usrmods%/"
+del devtools.mfm /f
+if exist "%usrmods%/devtools.mfm" (
+    echo Failed to delete DevTools module!
+    echo [devtools] ERROR: could not delete devtools module >>"%logfile%"
+    goto execdone
+)
+echo [devtools] INFO: deleted module devtools.mfm >>"%logfile%"
+cd /d "%pkgmeta%/"
+del 001-DevTools /f
+if exist "%pkgmeta%/001-DevTools" (goto unregfail)
+echo [devtools] INFO: unregistered devtools package >>"%logfile%"
+echo DevTools uninstalled!
+echo You will not be able to use developer commands anymore.
+echo [devtools] INFO: uninstallation complete >>"%logfile%"
+echo.
+goto reboot
+
+:mfpkg-rm-002
+if not exist "%usrmods%/flashbreak.mfm" (goto nocommand)
+call :cmdok
+if not exist "%usrmods%/devtools.mfm" (call :nodev)
+echo F145HBR34K Uninstaller
+echo F145HBR34K version: %fbver%
+echo MicroflashOS version: %mfosver%
+echo.
+echo Uninstalling jailbreak...
+echo.
+call :userauth
+echo.
+cd /d "%usrmods%"
+del flashbreak.mfm /f /q
+if exist "%usrmods%/flashbreak.mfm" (
+    echo Failed to delete F145HBR34K module!
+    echo [flashbreak] ERROR: could not delete flashbreak module >>"%logfile%"
+    goto execdone
+)
+echo [flashbreak] INFO: deleted module flashbreak.mfm >>"%logfile%"
+cd /d "%pkgmeta%"
+del 002-F145HBR34K /f /q
+if exist "%pkgmeta%/002-F145HBR34K" (goto unregfail)
+echo.
+echo Jailbreak uninstalled!
+echo.
+echo All F145HBR34K commands will be invalidated.
+echo [flashbreak] INFO: uninstallation complete >>"%logfile%"
+echo.
+goto reboot
 
 :mfpkg-rm-003
 if not exist "%disk0p1%/mfpkg.mcm" (goto nocommand)
@@ -1191,7 +1187,7 @@ if exist "%disk0p1%" (
     goto execdone
 )
 echo System disk not found!
-goto prompt
+goto execdone
 
 :dumper
 if not exist "%pkgdir%/dumper.mfp" (goto nocommand)
@@ -1211,7 +1207,7 @@ if exist "%disk0p1%" (
 ) 
 echo Could not find system disk. System may be corrupt.
 echo Please enter recovery mode to repair your system.
-goto prompt
+goto execdone
 
 :winflash
 if not exist "%pkgdir%/winflash.mfp" (goto nocommand)
@@ -1233,15 +1229,15 @@ if "%fbloaded%" NEQ "yessir" (goto nofb)
 title Virtual System Disk Mounter
 if "%1"=="" (
     echo Please enter a valid system disk name.
-    goto prompt
+    goto execdone
 )
 if not exist "%~dp0%1" (
     echo System disk not found.
-    goto prompt
+    goto execdone
 )
 set "disk0label=%1"
-echo Mounted virtual disk. Rebooting...
-call :halt
+echo Mounted virtual disk.
+echo.
 goto reboot
 
 :: Debugging commands
@@ -1360,15 +1356,9 @@ if not exist "version.txt" (
 )
 
 echo MicroflashOS installation complete!
+echo Please re-launch the Batch script.
 call :halt
-echo.
-title Rebooting...
-echo Rebooting...
-goto reboot
-
-
-
-:: Some consolidations
+exit
 
 :: Proctector authorization
 
@@ -1377,20 +1367,21 @@ echo [proctector] INFO: requesting user authorization >>"%logfile%"
 set /p "confirmation=Type "CONFIRM" (case-sensitive) to confirm this action: "
 if "%confirmation%" == "CONFIRM" (
     set "confirmation="
+    set "authorized=true"
     echo [proctector] INFO: authorized >>"%logfile%"
     goto :eof
 ) else (
     echo.
     echo User authorization failed!
     echo [kernel] ERROR: user authorization failed >> "%logfile%"
-    goto prompt
+    goto execdone
 )
 
 :: Command execution successful
 
 :execdone
 echo [cmd] INFO: command execution complete >> "%logfile%"
-goto prompt
+goto :eof
 
 :cmdok
 echo [cmd] INFO: command valid >>"%logfile%"
@@ -1403,17 +1394,17 @@ goto :eof
 echo Invalid command.
 if not exist "%toggles%/incognito" (echo [invalid] "%input%" >>"%history%")
 echo [cmd] ERROR: command "%input%" invalid >>"%logfile%"
-goto prompt
+goto :eof
 
 :nodev
 echo DevTools not found. Install pID 001.
 echo [cmd] ERROR: required dependency "DevTools" is missing >>"%logfile%"
-goto prompt
+goto :eof
 
 :nofb
 echo F145HBR34K not found. Install pID 002.
 echo [cmd] ERROR: required dependency "F145HBR34K" is missing >>"%logfile%"
-goto prompt
+goto :eof
 
 :: Generic boot failure
 
@@ -1436,7 +1427,7 @@ goto :pauseexit
 
 :nopkg
 echo Package not installed!
-goto prompt
+goto :eof
 
 :instdone
 echo Installed package ID %pkgtarget%
@@ -1455,25 +1446,25 @@ goto execdone
 echo Failed to install package %pkgtarget%
 echo [mfpkg] ERROR: failed to install pID %pkgtarget% >>"%logfile%"
 endlocal
-goto prompt
+goto execdone
 
 :inregfail
 echo Failed to register package %pkgtarget%
 echo [mfpkg] ERROR: failed to register pID %pkgtarget% >>"%logfile%"
 endlocal
-goto prompt
+goto execdone
 
 :uninsfail
 echo Failed to uninstall package %pkgtarget%
 echo [mfpkg] ERROR: failed to uninstall pID %pkgtarget% >>"%logfile%"
 endlocal
-goto prompt
+goto execdone
 
 :unregfail
 echo Failed to unregister package %pkgtarget%
 echo [mfpkg] ERROR: failed to unregister pID %pkgtarget% >>"%logfile%"
 endlocal
-goto prompt
+goto execdone
 
 :: Boot process
 
