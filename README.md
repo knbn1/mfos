@@ -8,6 +8,8 @@ Please read [disclaimer.md](https://github.com/knbn1/microflash-os/blob/main/dis
 
 Code is licensed under the GPL-3.0 license, you are free to make your own derivative/fork of MicroflashOS.
 
+Documentation is correct according to the latest version in GitHub Releases.
+
 ---
 
 ## Compatibility Notes
@@ -33,9 +35,9 @@ After it is "installed" just run the Batch file every "startup". MicroflashOS sh
 
 ## Updating MicroflashOS
 
-As of 2026.04.28, MicroflashOS updates are handled automatically on boot. Just download the latest Batch file and run it. The program should figure out the rest.
+MicroflashOS updates are handled automatically on boot. Just download the latest Batch file and run it. The program should figure out the rest.
 
-If you are on an older version, you may update manually by using the ```recovery``` command.
+If you are on an older version, you may update manually using the ```recovery``` command.
 
 Upon updating MicroflashOS, only the ```mfos``` folder is modified. 
 Any leftover user data in ```userdata``` is left intact. 
@@ -62,8 +64,6 @@ Here are some useful commands to start with:
 ---
 
 ## Command History
-
-As of 2026.04.25, MicroflashOS now logs commands. 
 
 The history file can be found in the home directory as ```mfos-history.txt```
 
@@ -155,7 +155,7 @@ Some noteworthy ones:
 
 ---
 
-## Reading Log Messages (as of 2026.04.01)
+## Reading Log Messages
 
 By default a file named ```mfos-log.txt``` is created in the same directory as the Batch file. 
 
