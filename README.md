@@ -172,16 +172,13 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - More packages (maybe some games)
 - ```robolibs``` (added database manager in ```2026.03.18-rbtest```, still some more lore-specific stuff to add)
 - More repositories (maybe have a distinction between official packages from Kenneth and GigaflashOS CFW packages?)
-- More jailbreak-y stuff (I have some handwritten lore pages that need to be released for that though)
-- Bug fixes (never gets old!), mostly just looking for any weird situations
 - Future-proofing (making things more universal and easier to customize)
 - Guide to Programming For MicroflashOS
-- Compact and shrink code
 - Recycle Bin
 - Move toggles to variable-based settings
 - Add command-specific help sections
 - Offload packages to actual files
 - Make ```homewipe``` user-specific
-- Add support for creating/deleting users without reliance on Windows
+- Add support for creating/deleting users without reliance on Windows ```%username%```
 - Third-party package support
 - Dynamically install updates with ```curl```
