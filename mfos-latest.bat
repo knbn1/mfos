@@ -4,15 +4,6 @@
 
 @echo off
 
-::Update cleanup
-if "%1"=="UPDATE" if exist mfos-latest.old (
-    echo.
-    del installer.bat
-    del mfos-latest.old
-    echo [SUCCESS] Update completed!
-    pause
-)
-
 :: Define some version strings
 
 set "mfosver=2026.05.04"
@@ -26,6 +17,16 @@ set "modsdir=usermods"
 set "userdata=userdata"
 set "usrsysdata=mfosdata"
 set "disk0label=MicroflashOS"
+
+::Update cleanup
+if "%1"=="UPDATE" if exist mfos-latest.old (
+    del installer.bat mfos-latest.old
+    echo.
+    echo Update completed!
+    echo You are now on %mfosver%
+    echo.
+    pause
+)
 
 :: Boot process stage 0 - Bootloader
 
@@ -525,6 +526,7 @@ set "return="
 
 call :curl_check return
 if "%return%"=="nope" (
+    echo curl not found or inaccessible.
     set /p conf="Install curl via winget?(y/[n])"
     if not "%conf%"=="y" (goto :eof)
     winget install -e --id curl.curl --silent --accept-source-agreements --accept-package-agreements || goto :eof
@@ -536,10 +538,12 @@ curl -sSf -o "mfos-latest.meta" %metaLink% 2> curl.ERR
 
 call :file_empty "curl.ERR" return
 if "%return%"=="nope" (
+    type curl.ERR >> %logfile%
+    echo Version check failed. Below are the details of the error:
     type curl.ERR
-    echo [ERROR] Version check failed.
-    goto :eof
-) & del curl.ERR
+    
+    del curl.ERR & goto :eof
+)
 
 set /a metaLineCount=0
 for /f "delims=" %%i in (mfos-latest.meta) do (
@@ -552,11 +556,11 @@ for /f "delims=" %%i in (mfos-latest.meta) do (
 
 call :date_GEQ %mfosver% %latestVersion% yessir return
 if "%return%"=="yessir" (
-    echo [OK] No newer versions found.
+    echo No newer versions found -- You are up-to-date!
     goto :eof
 )
 
-echo [SUCCESS] Latest Version Found: %latestVersion%
+echo Latest Version Found: %latestVersion%
 set /p conf="Install update?([y]/n):"
 if "%conf%"=="n" (goto :eof)
 
@@ -565,18 +569,20 @@ curl -sSf -o TEMP_mfos-latest.bat %batLink% 2> curl.ERR
 
 call :file_empty "curl.ERR" return
 if "%return%"=="nope" (
+    type curl.ERR >> %logfile%
+    echo Update download failed. Below are the details of the error:
     type curl.ERR
-    echo [ERROR] Update download failed.
-    goto :eof
+
+    del curl.ERR & goto :eof
 ) & del curl.ERR
 
 move /y TEMP_mfos-latest.bat "%~dp0"
 cd /d "%~dp0"
 
-::Hard-coded installer - Separate in the future?
+::Hard-coded installer - Separate in the future
 echo @echo off > installer.bat
 echo echo. >> installer.bat
-echo echo [INFO] Installing update... >> installer.bat
+echo echo Installing update... >> installer.bat
 echo ren mfos-latest.bat mfos-latest.old >> installer.bat
 echo ren TEMP_mfos-latest.bat mfos-latest.bat >> installer.bat
 echo mfos-latest.bat UPDATE >> installer.bat
@@ -588,17 +594,16 @@ installer.bat & goto :eof
 :curl_check
 :: check for curl so we can do online stuffs
 :: %1=return var(bool)
-    echo [INFO] Checking for curl...
+    echo [updater] INFO: Checking for curl... >> %logfile%
     curl --version >nul 2>&1
     if %errorlevel% neq 0 (
-        echo [INFO] curl not found.
+        echo [updater] ERROR: curl not found. >> %logfile%
         set "%1=nope"
         goto :eof
     )
-    echo [OK] curl is already installed.
+    echo [updater] INFO: curl is already installed. >> %logfile%
     set "%1=yessir"
     goto :eof
-
 
 :file_empty
 :: %1=filenameset(QUOTED) | %2=return(bool)
@@ -606,7 +611,6 @@ installer.bat & goto :eof
         set "%2=nope" & goto :eof
     )
     set "%2=yessir" & goto :eof
-
 
 :date_GEQ
 :: Date format: YYYY.MM.DD (padded zeros)
