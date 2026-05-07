@@ -182,3 +182,4 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - Add support for creating/deleting users without reliance on Windows ```%username%```
 - Third-party package support
 - Dynamically install updates with ```curl```
+- Add support for passing toggles at boot time with parameters
