@@ -26,7 +26,7 @@ if "%1"=="UPDATE" if exist mfos.old (
     echo Update completed!
     echo You are now on %mfosver%
     echo.
-    echo Please re-launch the Batch script.
+    echo Please re-launch the Batch script to apply the update.
     goto pauseexit
 )
 
