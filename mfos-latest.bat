@@ -18,16 +18,15 @@ set "userdata=userdata"
 set "usrsysdata=mfosdata"
 set "disk0label=MicroflashOS"
 
-:: Post-update cleanup
+::Update cleanup
 
-if "%1"=="UPDATE" if exist mfos.old (
-    del installer.bat mfos.old
+if "%1"=="UPDATE" if exist mfos-latest.old (
+    del installer.bat mfos-latest.old
     echo.
     echo Update completed!
     echo You are now on %mfosver%
     echo.
-    echo Please re-launch the Batch script to apply the update.
-    goto pauseexit
+    pause
 )
 
 :: Boot process stage 0 - Bootloader
@@ -451,10 +450,10 @@ goto prompt
 :help
 if not exist "%disk0p1%/core.mcm" (goto nocommand)
 call :cmdok
-echo System Utilities:
+echo Utilities:
 echo.
 echo about: Show some system info
-echo updater: MicroflashOS Updater
+echo updater: Download latest MicroflashOS from GitHub
 echo clock: Print current date and time
 echo clear: Clear console output
 echo.
@@ -517,8 +516,6 @@ goto execdone
 
 
 :updater
-if not exist "%disk0p1%/core.mcm" (goto nocommand)
-title MicroflashOS Online Updater
 
 setlocal EnableDelayedExpansion
 
@@ -527,41 +524,31 @@ setlocal EnableDelayedExpansion
 set batLink="https://raw.githubusercontent.com/knbn1/mfos/refs/heads/main/mfos-latest.bat"
 set metaLink="https://raw.githubusercontent.com/knbn1/mfos/refs/heads/main/mfos-latest.meta"
 
-:: reset variables 
-
 set "latestVersion="
 set "return="
 
 call :curl_check return
 if "%return%"=="nope" (
-    echo curl not found. Please install curl to update MicroflashOS.
-    echo [updater] WARN: curl not found >>"%logfile%"
-    echo.
-    set /p conf="Install curl via winget? (y/[n]): "
-    echo.
-    if not "%conf%"=="y" (
-        echo [updater] ERROR: curl installation cancelled. >>"%logfile%"
-        echo curl installation cancelled by user.
-        goto :eof
-    )
-    echo [updater] INFO: installing curl with winget >>"%logfile%"
-    winget install --id curl.curl --accept-source-agreements --accept-package-agreements || goto :eof
+    echo curl not found!
+    echo [updater] WARN: curl not found! >>"%logfile%"
+    set /p conf="Install curl via winget?(y/[n])"
+    if not "%conf%"=="y" (goto :eof)
+    echo [updater] INFO: installing curl with Winget >>"%logfile%"
+    winget install -e --id curl.curl --silent --accept-source-agreements --accept-package-agreements || goto :eof
 )
 
-echo Getting latest release...
 echo.
-echo [updater] INFO: getting latest release info from %metaLink% ... >>"%logfile%"
-curl -sSf -o "mfos-latest.meta" %metaLink% 2> curl.err
+echo Getting latest release...
+echo [updater] INFO: getting latest release info... >>"%logfile%"
+curl -sSf -o "mfos-latest.meta" %metaLink% 2> curl.ERR
 
-call :file_empty "curl.err" return
+call :file_empty "curl.ERR" return
 if "%return%"=="nope" (
     echo [updater] ERROR: curl curled up apparently. details: >>"%logfile%"
-    type curl.err >>"%logfile%"
+    type curl.ERR >>"%logfile%"
     echo Version check failed. Below are the details of the error:
-    echo.
-    type curl.err
-    del curl.err
-    endlocal
+    type curl.ERR
+    del curl.ERR
     goto :eof
 )
 
@@ -577,61 +564,52 @@ del mfos-latest.meta
 
 call :date_GEQ %mfosver% %latestVersion% yessir return
 if "%return%"=="yessir" (
-    echo No newer versions found -- You are up-to-date.
-    echo [updater] INFO: no newer versions found >>"%logfile%"
-    endlocal
+    echo No newer versions found -- You are up-to-date!
+    echo [updater] INFO: no newer versions found! >>"%logfile%"
     goto execdone
 )
 
-echo [updater] INFO: new version found: %latestVersion% >>"%logfile%"
+echo [updater] INFO: newer version found: %latestVersion% >>"%logfile%"
 echo New version found: %latestVersion%
-echo.
-set /p conf="Install update? ([y]/n): "
+set /p conf="Install update? ([y]/n):"
 if "%conf%"=="n" (
     echo.
     echo Update cancelled by user.
     echo [updater] INFO: update cancelled >>"%logfile%"
-    endlocal
     goto execdone
 )
 
-echo.
 echo Downloading latest version...
-echo [updater] INFO: downloading latest mfos from %batLink% >>"%logfile%"
-curl -sSf -o TEMP_mfos-latest.bat %batLink% 2> curl.err
+curl -sSf -o TEMP_mfos-latest.bat %batLink% 2> curl.ERR
 
-call :file_empty "curl.err" return
+call :file_empty "curl.ERR" return
 if "%return%"=="nope" (
     echo [updater] ERROR: curl curled up apparently. details: >>"%logfile%"
-    type curl.err >>"%logfile%"
+    type curl.ERR >>"%logfile%"
     echo Update download failed. Below are the details of the error:
-    echo.
-    type curl.err
-    del curl.err
-    endlocal
+    type curl.ERR
+    del curl.ERR
     goto :eof
 )
-del curl.err
+del curl.ERR
 
 move /y TEMP_mfos-latest.bat "%~dp0"
 cd /d "%~dp0"
 
-:: Hard-coded installer - Separate in the future
+::Hard-coded installer - Separate in the future
 
 echo [updater] INFO: creating installer.bat file >>"%logfile%"
 
 echo @echo off > installer.bat
 echo echo. >> installer.bat
 echo echo Installing update... >> installer.bat
-echo ren mfos-latest.bat mfos.old >> installer.bat
+echo ren mfos-latest.bat mfos-latest.old >> installer.bat
 echo ren TEMP_mfos-latest.bat mfos-latest.bat >> installer.bat
 echo mfos-latest.bat UPDATE >> installer.bat
 
-echo [updater] INFO: installer.bat created, executing... >>"%logfile%"
-
 installer.bat & goto :eof
 
-:: some operations pertaining to the updater
+:: check for curl so we can do online stuffs
 
 :curl_check
 :: %1=return var(bool)
@@ -641,7 +619,7 @@ if %errorlevel% neq 0 (
     set "%1=nope"
     goto :eof
 )
-echo [updater] INFO: curl detected >>"%logfile%"
+echo [updater] INFO: curl installed >>"%logfile%"
 set "%1=yessir"
 goto :eof
 
@@ -1595,6 +1573,17 @@ echo F145HBR34K not found. Install pID 002.
 echo [cmd] ERROR: required dependency "F145HBR34K" is missing >>"%logfile%"
 goto :eof
 
+:: Generic boot failure
+
+:bootfail
+echo.
+title Startup Failure!
+echo MicroflashOS startup failed. Entering recovery...
+call :halt
+echo [kernel] INFO: booting to recovery... >>"%logfile%"
+echo [kernel] INFO: booting to recovery...
+goto recovery
+
 :: Recovery mode
 
 :modinstfail
@@ -1645,15 +1634,6 @@ endlocal
 goto execdone
 
 :: Boot process
-
-:bootfail
-echo.
-title Startup Failure!
-echo MicroflashOS startup failed. Entering recovery...
-call :halt
-echo [kernel] INFO: booting to recovery... >>"%logfile%"
-echo [kernel] INFO: booting to recovery...
-goto recovery
 
 :devinitfail
 echo [kdevinit] ERROR: failed to initialize "%1" >>"%logfile%"
