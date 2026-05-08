@@ -26,7 +26,8 @@ if "%1"=="UPDATE" if exist mfos.old (
     echo Update completed!
     echo You are now on %mfosver%
     echo.
-    pause
+    echo Please re-launch the Batch script.
+    goto pauseexit
 )
 
 :: Boot process stage 0 - Bootloader
