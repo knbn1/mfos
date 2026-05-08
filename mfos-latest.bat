@@ -20,7 +20,7 @@ set "disk0label=MicroflashOS"
 
 :: Post-update cleanup
 
-if "%1"=="UPDATE" if exist mfos-latest.old (
+if "%1"=="UPDATE" if exist mfos.old (
     del installer.bat mfos.old
     endlocal
     echo.
