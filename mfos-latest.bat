@@ -6,7 +6,7 @@
 
 :: Define some version strings
 
-set "mfosver=2026.05.08"
+set "mfosver=2026.05.09"
 set "fbver=5.2"
 set "pkgrepo=GigaflashOS Unified Repository [Revision 2]"
 
