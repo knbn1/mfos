@@ -27,6 +27,7 @@ if "%1"=="UPDATE" if exist mfos-latest.old (
     echo Update completed!
     echo You are now on %mfosver%
     echo.
+    endlocal
     pause
 )
 
@@ -1553,6 +1554,9 @@ echo Please re-launch the Batch script.
 call :halt
 exit
 
+
+:: Consolidated code
+
 :: Proctector authorization
 
 :userauth
@@ -1581,7 +1585,7 @@ echo [cmd] INFO: command valid >>"%logfile%"
 if not exist "%toggles%/incognito" (echo [valid] "%input%" >>"%history%")
 goto :eof
 
-:: Failed some dependency checks
+:: Dependencies unmet
 
 :nocommand
 echo Invalid command.
@@ -1598,17 +1602,6 @@ goto :eof
 echo F145HBR34K not found. Install pID 002.
 echo [cmd] ERROR: required dependency "F145HBR34K" is missing >>"%logfile%"
 goto :eof
-
-:: Generic boot failure
-
-:bootfail
-echo.
-title Startup Failure!
-echo MicroflashOS startup failed. Entering recovery...
-call :halt
-echo [kernel] INFO: booting to recovery... >>"%logfile%"
-echo [kernel] INFO: booting to recovery...
-goto recovery
 
 :: Recovery mode
 
@@ -1661,6 +1654,15 @@ goto execdone
 
 :: Boot process
 
+:bootfail
+echo.
+title Startup Failure!
+echo MicroflashOS startup failed. Entering recovery...
+call :halt
+echo [kernel] INFO: booting to recovery... >>"%logfile%"
+echo [kernel] INFO: booting to recovery...
+goto recovery
+
 :devinitfail
 echo [kdevinit] ERROR: failed to initialize "%1" >>"%logfile%"
 echo Could not initialize device "%1"
@@ -1691,7 +1693,7 @@ call :halt
 echo [bootloader] DEBUG: slowboot toggle tripped >>"%logfile%"
 goto :eof
 
-:: Common pause and exit function
+:: Common pause and exit functions
 
 :pauseexit
 call :halt
