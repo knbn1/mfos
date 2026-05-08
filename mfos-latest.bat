@@ -27,7 +27,8 @@ if "%1"=="UPDATE" if exist mfos-latest.old (
     echo Update completed!
     echo You are now on %mfosver%
     echo.
-    pause
+    echo Please re-launch the Batch script to finalize changes.
+    goto pauseexit
 )
 
 :: Boot process stage 0 - Bootloader
@@ -204,7 +205,7 @@ if not exist "%disk0p2%" (
     if not exist "%disk0p2%" (
         echo Userdata partition creation failed!
         echo [kusrinit] ERROR: userdata partition creation failed >>"%logfile%"
-        call :pauseexit
+        goto pauseexit
     )
 )
 
@@ -220,7 +221,7 @@ if not exist "%usrdir%" (
     if not exist "%usrdir%/" (
         echo Userdata creation failed!
         echo [kusrinit] ERROR: userdata creation for user %username% failed >>"%logfile%"
-        call :pauseexit
+        goto pauseexit
     )
 )
 
@@ -233,7 +234,7 @@ if not exist "%usrsysdatadir%" (
     if not exist "%usrsysdatadir%/" (
         echo Userdata creation failed!
         echo [kusrinit] ERROR: userdata creation for user %username% failed >>"%logfile%"
-        call :pauseexit
+        goto pauseexit
     )
 )
 
@@ -246,7 +247,7 @@ if not exist "%toggles%/" (
     if not exist "%usrsysdatadir%/toggles" (
         echo Toggle directory creation failed!
         echo [kusrinit] ERROR: toggle directory creation for user %username% failed >>"%logfile%"
-        call :pauseexit
+        goto pauseexit
     )
 )
 
@@ -261,7 +262,7 @@ if not exist "%pkgdir%/" (
     if not exist "%pkgdir%/" if not exist "%pkgmeta%" (
         echo Package directory creation failed!
         echo [kusrinit] ERROR: package directory creation for user %username% failed >>"%logfile%"
-        call :pauseexit
+        goto pauseexit
     )
 )
 
@@ -274,7 +275,7 @@ if not exist "%usrmods%/" (
     if not exist "%usrmods%/" (
         echo Module directory creation failed!
         echo [kusrinit] ERROR: module directory creation for user %username% failed >>"%logfile%"
-        call :pauseexit
+        goto pauseexit
     )
 )
 
@@ -627,7 +628,6 @@ echo echo. >> installer.bat
 echo echo Installing update... >> installer.bat
 echo ren mfos-latest.bat mfos-latest.old >> installer.bat
 echo ren TEMP_mfos-latest.bat mfos-latest.bat >> installer.bat
-echo endlocal >> installer.bat
 echo mfos-latest.bat UPDATE >> installer.bat
 
 echo [updater] INFO: installer.bat created, executing... >>"%logfile%"
@@ -1459,7 +1459,9 @@ cls
 cd /d "%~dp0"
 title MicroflashOS Recovery
 echo.
-echo Installing MicroflashOS.
+echo Bundled kernel: %mfosver%
+echo.
+echo Installing MicroflashOS...
 call :halt
 
 :: System disk creation
@@ -1468,7 +1470,7 @@ if not exist "%~dp0%disk0label%" (md "%disk0label%")
 if not exist "%~dp0%disk0label%" (
     echo.
     echo Failed to format system disk!
-    call :pauseexit
+    goto pauseexit
 )
 echo.
 echo System disk "%disk0label%" mounted as /
@@ -1478,7 +1480,7 @@ if not exist %sysdir% (md %sysdir%)
 if not exist %sysdir% (
     echo.
     echo Failed to create operating system data directory!
-    call :pauseexit
+    goto pauseexit
 )
 
 :: Install core modules
@@ -1546,7 +1548,7 @@ cd /d "%~dp0%disk0label%"
 echo %mfosver%>"version.txt"
 if not exist "version.txt" (
     echo Failed to register MicroflashOS version!
-    call :pauseexit
+    goto pauseexit
 )
 
 echo MicroflashOS installation complete!
