@@ -450,10 +450,10 @@ goto prompt
 :help
 if not exist "%disk0p1%/core.mcm" (goto nocommand)
 call :cmdok
-echo Utilities:
+echo System utilities:
 echo.
 echo about: Show some system info
-echo updater: Download latest MicroflashOS from GitHub
+echo updater: MicroflashOS Online Updater
 echo clock: Print current date and time
 echo clear: Clear console output
 echo.
@@ -516,6 +516,8 @@ goto execdone
 
 
 :updater
+if not exist "%disk0p1%/core.mcm" (goto nocommand)
+title MicroflashOS Online Updater
 
 setlocal EnableDelayedExpansion
 
@@ -524,22 +526,31 @@ setlocal EnableDelayedExpansion
 set batLink="https://raw.githubusercontent.com/knbn1/mfos/refs/heads/main/mfos-latest.bat"
 set metaLink="https://raw.githubusercontent.com/knbn1/mfos/refs/heads/main/mfos-latest.meta"
 
+:: reset variables
+
 set "latestVersion="
 set "return="
 
 call :curl_check return
 if "%return%"=="nope" (
     echo curl not found!
-    echo [updater] WARN: curl not found! >>"%logfile%"
-    set /p conf="Install curl via winget?(y/[n])"
-    if not "%conf%"=="y" (goto :eof)
+    echo [updater] WARN: curl not found >>"%logfile%"
+    echo.
+    set /p conf="Install curl via winget? (y/[n]): "
+    echo.
+    if not "%conf%"=="y" (
+        echo [updater] ERROR: curl installation cancelled. >>"%logfile%"
+        echo curl installation cancelled by user.
+        goto :eof
+    )
     echo [updater] INFO: installing curl with Winget >>"%logfile%"
-    winget install -e --id curl.curl --silent --accept-source-agreements --accept-package-agreements || goto :eof
+    winget install --id curl.curl --accept-source-agreements --accept-package-agreements || goto :eof
 )
 
 echo.
 echo Getting latest release...
-echo [updater] INFO: getting latest release info... >>"%logfile%"
+echo.
+echo [updater] INFO: getting latest release info from %metaLink% >>"%logfile%"
 curl -sSf -o "mfos-latest.meta" %metaLink% 2> curl.ERR
 
 call :file_empty "curl.ERR" return
@@ -547,8 +558,10 @@ if "%return%"=="nope" (
     echo [updater] ERROR: curl curled up apparently. details: >>"%logfile%"
     type curl.ERR >>"%logfile%"
     echo Version check failed. Below are the details of the error:
+    echo.
     type curl.ERR
     del curl.ERR
+    endlocal
     goto :eof
 )
 
@@ -564,22 +577,27 @@ del mfos-latest.meta
 
 call :date_GEQ %mfosver% %latestVersion% yessir return
 if "%return%"=="yessir" (
-    echo No newer versions found -- You are up-to-date!
-    echo [updater] INFO: no newer versions found! >>"%logfile%"
+    echo No newer versions found -- You are up-to-date.
+    echo [updater] INFO: no newer versions found >>"%logfile%"
+    endlocal
     goto execdone
 )
 
-echo [updater] INFO: newer version found: %latestVersion% >>"%logfile%"
+echo [updater] INFO: new version found: %latestVersion% >>"%logfile%"
 echo New version found: %latestVersion%
-set /p conf="Install update? ([y]/n):"
+echo.
+set /p conf="Install update? ([y]/n): "
 if "%conf%"=="n" (
     echo.
     echo Update cancelled by user.
     echo [updater] INFO: update cancelled >>"%logfile%"
+    endlocal
     goto execdone
 )
 
+echo.
 echo Downloading latest version...
+echo [updater] INFO: downloading latest mfos from %batLink% >>"%logfile%"
 curl -sSf -o TEMP_mfos-latest.bat %batLink% 2> curl.ERR
 
 call :file_empty "curl.ERR" return
@@ -587,8 +605,10 @@ if "%return%"=="nope" (
     echo [updater] ERROR: curl curled up apparently. details: >>"%logfile%"
     type curl.ERR >>"%logfile%"
     echo Update download failed. Below are the details of the error:
+    echo.
     type curl.ERR
     del curl.ERR
+    endlocal
     goto :eof
 )
 del curl.ERR
@@ -606,6 +626,8 @@ echo echo Installing update... >> installer.bat
 echo ren mfos-latest.bat mfos-latest.old >> installer.bat
 echo ren TEMP_mfos-latest.bat mfos-latest.bat >> installer.bat
 echo mfos-latest.bat UPDATE >> installer.bat
+
+echo [updater] INFO: installer.bat created, executing... >>"%logfile%"
 
 installer.bat & goto :eof
 
