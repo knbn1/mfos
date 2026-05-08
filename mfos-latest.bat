@@ -1,5 +1,6 @@
 ::  Source code of MicroflashOS
 ::  A "fantasy operating system" made by KNBnoob1!
+:: With help from nglammm and nightlyDevice!
 ::  Website: https://knbn1.github.io
 
 @echo off
@@ -18,7 +19,7 @@ set "userdata=userdata"
 set "usrsysdata=mfosdata"
 set "disk0label=MicroflashOS"
 
-::Update cleanup
+:: Update cleanup
 
 if "%1"=="UPDATE" if exist mfos-latest.old (
     del installer.bat mfos-latest.old
@@ -453,7 +454,7 @@ call :cmdok
 echo System utilities:
 echo.
 echo about: Show some system info
-echo updater: MicroflashOS Online Updater
+echo updater: MicroflashOS online updater
 echo clock: Print current date and time
 echo clear: Clear console output
 echo.
@@ -515,6 +516,8 @@ if exist "%disk0p1%/mfpkg.mcm" (
 goto execdone
 
 
+:: BEGIN UPDATER CODE
+
 :updater
 if not exist "%disk0p1%/core.mcm" (goto nocommand)
 title MicroflashOS Online Updater
@@ -547,15 +550,14 @@ if "%return%"=="nope" (
     winget install --id curl.curl --accept-source-agreements --accept-package-agreements || goto :eof
 )
 
+echo Getting latest version...
 echo.
-echo Getting latest release...
-echo.
-echo [updater] INFO: getting latest release info from %metaLink% >>"%logfile%"
+echo [updater] INFO: getting latest version from %metaLink% >>"%logfile%"
 curl -sSf -o "mfos-latest.meta" %metaLink% 2> curl.ERR
 
 call :file_empty "curl.ERR" return
 if "%return%"=="nope" (
-    echo [updater] ERROR: curl curled up apparently. details: >>"%logfile%"
+    echo [updater] ERROR: curl curled up >>"%logfile%"
     type curl.ERR >>"%logfile%"
     echo Version check failed. Below are the details of the error:
     echo.
@@ -602,7 +604,7 @@ curl -sSf -o TEMP_mfos-latest.bat %batLink% 2> curl.ERR
 
 call :file_empty "curl.ERR" return
 if "%return%"=="nope" (
-    echo [updater] ERROR: curl curled up apparently. details: >>"%logfile%"
+    echo [updater] ERROR: curl curled up >>"%logfile%"
     type curl.ERR >>"%logfile%"
     echo Update download failed. Below are the details of the error:
     echo.
@@ -631,7 +633,7 @@ echo [updater] INFO: installer.bat created, executing... >>"%logfile%"
 
 installer.bat & goto :eof
 
-:: check for curl so we can do online stuffs
+:: Updater behind the scenes stuff (woah)
 
 :curl_check
 :: %1=return var(bool)
@@ -666,6 +668,8 @@ if "%3"=="yessir" if "%1"=="%2" (
 )
 set "%4=nope"
 goto :eof
+
+:: END OF UPDATER CODE
 
 
 :: About me
