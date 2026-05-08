@@ -35,9 +35,15 @@ After it is "installed" just run the Batch file every "startup". MicroflashOS sh
 
 ## Updating MicroflashOS
 
-MicroflashOS updates are handled automatically on boot. Just download the latest Batch file and run it. The program should figure out the rest.
+As of [2026.05.09](https://github.com/knbn1/mfos/releases/tag/2026.05.09), MicroflashOS now has an update downloader!
 
-If you are on an older version, you may update manually using the ```recovery``` command.
+It uses [```curl```](https://www.google.com/url?sa=t&source=web&rct=j&opi=89978449&url=https://curl.se/&ved=2ahUKEwiArYKot6qUAxW0ha8BHTEaBKUQFnoECCUQAQ&usg=AOvVaw0oc3LfIV2zPzc8rVOg4kq6), as a result you will need ```curl``` in your PATH.
+Or Windows 10 version 1809 (build 17763) or later for it to automatically be installed with Winget.
+
+Run ```updater``` while booted. 
+MicroflashOS checks the repository for any new releases, if it finds one it downloads it and overwrites the release in your computer.
+
+If you are updating to a version before [2026.04.28](https://github.com/knbn1/mfos/releases/tag/2026.04.28), you may update manually using the ```recovery``` command, as that was the first version which supported the version check on boot.
 
 Upon updating MicroflashOS, only the ```mfos``` folder is modified. 
 Any leftover user data in ```userdata``` is left intact. 
@@ -181,5 +187,4 @@ where ```a``` is the running process, ```b``` is the message type (either ```INF
 - Make ```homewipe``` user-specific
 - Add support for creating/deleting users without reliance on Windows ```%username%```
 - Third-party package support
-- Dynamically install updates with ```curl```
 - Add support for passing toggles at boot time with parameters
