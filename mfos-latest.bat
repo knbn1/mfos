@@ -27,7 +27,6 @@ if "%1"=="UPDATE" if exist mfos-latest.old (
     echo Update completed!
     echo You are now on %mfosver%
     echo.
-    endlocal
     pause
 )
 
@@ -628,6 +627,7 @@ echo echo. >> installer.bat
 echo echo Installing update... >> installer.bat
 echo ren mfos-latest.bat mfos-latest.old >> installer.bat
 echo ren TEMP_mfos-latest.bat mfos-latest.bat >> installer.bat
+echo endlocal >> installer.bat
 echo mfos-latest.bat UPDATE >> installer.bat
 
 echo [updater] INFO: installer.bat created, executing... >>"%logfile%"
