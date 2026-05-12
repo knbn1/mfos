@@ -19,6 +19,10 @@ set "userData=userdata"
 set "userSysData=mfosdata"
 set "disk0Label=MicroflashOS"
 
+:: Boot process stage 0 - Bootloader
+
+:bootstagezero
+
 :: Update cleanup
 
 if "%1"=="UPDATE" if exist mfos.old (
@@ -29,10 +33,6 @@ if "%1"=="UPDATE" if exist mfos.old (
     echo.
     pause
 )
-
-:: Boot process stage 0 - Bootloader
-
-:bootstagezero
 
 cd /d "%~dp0"
 title MicroflashOS Bootloader
@@ -528,8 +528,6 @@ setlocal EnableDelayedExpansion
 
 set batLink="https://raw.githubusercontent.com/knbn1/mfos/refs/heads/main/mfos-latest.bat"
 set metaLink="https://raw.githubusercontent.com/knbn1/mfos/refs/heads/main/mfos-latest.meta"
-set batFile="mfos-latest.bat"
-set metaFile="mfos-latest.meta"
 
 :: reset variables
 
@@ -559,7 +557,7 @@ if "%return%"=="nope" (
 echo Getting latest version...
 echo.
 echo [updater] INFO: getting latest version from %metaLink% >>"%logfile%"
-curl -sSf -o "%metaFile%" %metaLink% 2> curl.ERR
+curl -sSf -o "mfos-latest.meta" %metaLink% 2> curl.ERR
 
 call :file_empty "curl.ERR" return
 if "%return%"=="nope" (
@@ -573,14 +571,14 @@ if "%return%"=="nope" (
 )
 
 set /a metaLineCount=0
-for /f "delims=" %%i in (%metaFile%) do (
+for /f "delims=" %%i in (mfos-latest.meta) do (
 set /a metaLineCount+=1
 :: can expand depending on .meta file
     if !metaLineCount! == 1 (
         set "latestVersion=%%i"
     )
 )
-del %metaFile%
+del mfos-latest.meta
 
 call :date_GEQ %mfosVer% %latestVersion% yessir return
 if "%return%"=="yessir" (
@@ -605,7 +603,7 @@ if "%conf%"=="n" (
 echo.
 echo Downloading latest version...
 echo [updater] INFO: downloading latest mfos from %batLink% >>"%logfile%"
-curl -sSf -o TEMP_%batFile% %batLink% 2> curl.ERR
+curl -sSf -o TEMP_mfos-latest.bat %batLink% 2> curl.ERR
 
 call :file_empty "curl.ERR" return
 if "%return%"=="nope" (
@@ -619,21 +617,21 @@ if "%return%"=="nope" (
 )
 del curl.ERR
 
-move /y TEMP_%batFile% "%~dp0"
+move /y TEMP_mfos-latest.bat "%~dp0"
 cd /d "%~dp0"
 
 ::Hard-coded installer - Separate in the future
 
-echo [updater] INFO: creating installer.bat file >>"%logfile%"
+echo [updater] INFO: creating installer.bat >>"%logfile%"
 
 echo @echo off > installer.bat
 echo echo. >> installer.bat
 echo echo Installing update... >> installer.bat
-echo ren %batFile% mfos.old >> installer.bat
-echo ren TEMP_%batFile% %batFile% >> installer.bat
-echo %batFile% UPDATE >> installer.bat
+echo ren mfos-latest.bat mfos.old >> installer.bat
+echo ren TEMP_mfos-latest.bat mfos-latest.bat >> installer.bat
+echo mfos-latest.bat UPDATE >> installer.bat
 
-echo [updater] INFO: installer.bat created, executing... >>"%logfile%"
+echo [updater] INFO: executing installer.bat... >>"%logfile%"
 
 installer.bat & goto :eof
 
@@ -662,6 +660,7 @@ set "%2=yessir" & goto :eof
 :: Date format: YYYY.MM.DD (padded zeros)
 :: %1=date 1, %2=date 2, %3=use equal?(bool) | %4=return(bool)
 :: Swap dates to flip the inequality
+echo [updater] DEBUG: comparing "%mfosVer%" with "%latestVersion%" >>"%logfile%"
 if "%1" GTR "%2" (
     set "%4=yessir"
     goto :eof
