@@ -7,7 +7,7 @@
 
 :: Define some version strings
 
-set "mfosver=2026.05.09"
+set "mfosver=2026.05.13"
 set "fbver=5.2"
 set "pkgrepo=GigaflashOS Unified Repository [Revision 2]"
 
@@ -27,8 +27,7 @@ if "%1"=="UPDATE" if exist mfos-latest.old (
     echo Update completed!
     echo You are now on %mfosver%
     echo.
-    echo Please re-launch the Batch script to finalize changes.
-    goto pauseexit
+    pause
 )
 
 :: Boot process stage 0 - Bootloader
@@ -564,7 +563,6 @@ if "%return%"=="nope" (
     echo.
     type curl.ERR
     del curl.ERR
-    endlocal
     goto :eof
 )
 
@@ -582,7 +580,6 @@ call :date_GEQ %mfosver% %latestVersion% yessir return
 if "%return%"=="yessir" (
     echo No newer versions found -- You are up-to-date.
     echo [updater] INFO: no newer versions found >>"%logfile%"
-    endlocal
     goto execdone
 )
 
@@ -594,7 +591,6 @@ if "%conf%"=="n" (
     echo.
     echo Update cancelled by user.
     echo [updater] INFO: update cancelled >>"%logfile%"
-    endlocal
     goto execdone
 )
 
@@ -611,7 +607,6 @@ if "%return%"=="nope" (
     echo.
     type curl.ERR
     del curl.ERR
-    endlocal
     goto :eof
 )
 del curl.ERR
@@ -1068,7 +1063,6 @@ if "%1"=="list" (
     echo.
     dir /a:-d /b "%pkgmeta%/"
     echo [mfpkg] INFO: listed installed packages >>"%logfile%"
-    endlocal
     goto execdone
 )
 if "%1"=="available" (
@@ -1081,14 +1075,12 @@ if "%1"=="available" (
     echo ID 005: MicroflashOS Dumper
     echo ID 006: Virtual System Disk Mounter
     echo [mfpkg] INFO: showing details for repository "%pkgrepo%" >>"%logfile%"
-    endlocal
     goto execdone
 )
 if "%1"=="install" (
     if "%2"=="" (
         echo No package ID specified.
         echo [mfpkg] ERROR: no package ID specified >>"%logfile%"
-        endlocal
         goto execdone
     )
     set "pkgtarget=%2"
@@ -1101,7 +1093,6 @@ if "%1"=="install" (
     if "!pkgfound!"=="false" (
         echo Package ID is invalid.
         echo [mfpkg] ERROR: installation pID invalid >>"%logfile%"
-        endlocal
         goto execdone
     )
     set "pkgfound="
@@ -1111,7 +1102,6 @@ if "%1"=="uninstall" (
     if "%2"=="" (
         echo No package ID specified.
         echo [mfpkg] ERROR: no package ID specified >>"%logfile%"
-        endlocal
         goto execdone
     )
     set "pkgtarget=%2"
@@ -1150,14 +1140,12 @@ echo MicroflashOS Developer Tools [%mfosver%]>"%usrmods%/devtools.mfm"
 if not exist "%usrmods%/devtools.mfm" (
     echo Failed to install DevTools user module.
     echo [mfpkg] ERROR: failed to install /%sysdir%/%modsdir%/devtools.mfm >>"%logfile%"
-    endlocal
     goto execdone
 )
 echo %pkgrepo%>"%pkgmeta%/001-DevTools"
 if not exist "%pkgmeta%/001-DevTools" (goto inregfail)
 echo Installed successfully.
 echo Developer commands have been added to the help section.
-endlocal
 echo.
 goto reboot
 
@@ -1185,7 +1173,6 @@ if not exist "%usrmods%/flashbreak.mfm" (
 echo %pkgrepo%>"%pkgmeta%/002-F145HBR34K"
 if not exist "%pkgmeta%/002-F145HBR34K" (goto inregfail)
 echo Installed successfully.
-endlocal
 echo.
 goto reboot
 
@@ -1620,39 +1607,33 @@ goto :eof
 :instdone
 echo Installed package ID %pkgtarget%
 echo [mfpkg] INFO: installed pID %pkgtarget% >>"%logfile%"
-endlocal
 goto execdone
 
 :uninstdone
 echo Uninstalled package ID %pkgtarget%
 echo [mfpkg] INFO: uninstalled pID %pkgtarget% >>"%logfile%"
 cd /d %curdir%
-endlocal
 goto execdone
 
 :insfail
 echo Failed to install package %pkgtarget%
 echo [mfpkg] ERROR: failed to install pID %pkgtarget% >>"%logfile%"
-endlocal
-goto execdone
+goto :eof
 
 :inregfail
 echo Failed to register package %pkgtarget%
 echo [mfpkg] ERROR: failed to register pID %pkgtarget% >>"%logfile%"
-endlocal
-goto execdone
+goto :eof
 
 :uninsfail
 echo Failed to uninstall package %pkgtarget%
 echo [mfpkg] ERROR: failed to uninstall pID %pkgtarget% >>"%logfile%"
-endlocal
-goto execdone
+goto :eof
 
 :unregfail
 echo Failed to unregister package %pkgtarget%
 echo [mfpkg] ERROR: failed to unregister pID %pkgtarget% >>"%logfile%"
-endlocal
-goto execdone
+goto :eof
 
 :: Boot process
 
