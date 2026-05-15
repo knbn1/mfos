@@ -7,7 +7,7 @@
 
 :: Define some version strings
 
-set "mfosVer=2026.05.13"
+set "mfosVer=2026.05.16"
 set "fbVer=5.2"
 set "pkgRepo=GigaflashOS Unified Repository [Revision 2]"
 
@@ -18,6 +18,11 @@ set "modsDir=usermods"
 set "userData=userdata"
 set "userSysData=mfosdata"
 set "disk0Label=MicroflashOS"
+
+
+:: default user - defined by Batch environment variable %username%
+
+set user=%username%
 
 :: Boot process stage 0 - Bootloader
 
@@ -46,7 +51,7 @@ set "disk0p2=%disk0%/%userData%"
 :: Special directories
 
 set "devices=%disk0p1%/devices"
-set "userDir=%disk0p2%/%username%"
+set "userDir=%disk0p2%/%user%"
 set "userSysDatadir=%userDir%/%userSysData%"
 set "toggles=%userSysDatadir%/toggles"
 set "userMods=%userSysDatadir%/%modsDir%"
@@ -209,50 +214,50 @@ if not exist "%disk0p2%" (
 )
 
 if not exist "%userDir%" (
-    echo Userdata for user %username% not found!
-    echo [kusrinit] WARN: no userdata found for user %username% >>"%logfile%"
+    echo Userdata for user %user% not found!
+    echo [kusrinit] WARN: no userdata found for user %user% >>"%logfile%"
     echo.
-    echo Creating userdata for %username%...
-    echo [kusrinit] INFO: creating userdata for user %username% >>"%logfile%"
+    echo Creating userdata for %user%...
+    echo [kusrinit] INFO: creating userdata for user %user% >>"%logfile%"
     cd /d "%disk0p2%"
-    md %username%
+    md %user%
     echo.
     if not exist "%userDir%/" (
         echo Userdata creation failed!
-        echo [kusrinit] ERROR: userdata creation for user %username% failed >>"%logfile%"
+        echo [kusrinit] ERROR: userdata creation for user %user% failed >>"%logfile%"
         goto pauseexit
     )
 )
 
 if not exist "%userSysDatadir%" (
-    echo Setting up userdata for %username%...
-    echo [kusrinit] INFO: setting up userdata for %username% >>"%logfile%"
+    echo Setting up userdata for %user%...
+    echo [kusrinit] INFO: setting up userdata for %user% >>"%logfile%"
     cd /d "%userDir%"
     md "%userSysData%"
     echo.
     if not exist "%userSysDatadir%/" (
         echo Userdata creation failed!
-        echo [kusrinit] ERROR: userdata creation for user %username% failed >>"%logfile%"
+        echo [kusrinit] ERROR: userdata creation for user %user% failed >>"%logfile%"
         goto pauseexit
     )
 )
 
 if not exist "%toggles%/" (
     echo Creating toggle directory...
-    echo [kusrinit] INFO: creating toggle directory for %username% >>"%logfile%"
+    echo [kusrinit] INFO: creating toggle directory for %user% >>"%logfile%"
     cd /d "%userSysDatadir%"
     md toggles
     echo.
     if not exist "%userSysDatadir%/toggles" (
         echo Toggle directory creation failed!
-        echo [kusrinit] ERROR: toggle directory creation for user %username% failed >>"%logfile%"
+        echo [kusrinit] ERROR: toggle directory creation for user %user% failed >>"%logfile%"
         goto pauseexit
     )
 )
 
 if not exist "%pkgDir%/" (
     echo Creating package directory...
-    echo [kusrinit] INFO: creating package directory for %username% >>"%logfile%"
+    echo [kusrinit] INFO: creating package directory for %user% >>"%logfile%"
     cd /d "%userSysDatadir%"
     md packages
     cd /d "%pkgDir%"
@@ -260,27 +265,27 @@ if not exist "%pkgDir%/" (
     echo.
     if not exist "%pkgDir%/" if not exist "%pkgMeta%" (
         echo Package directory creation failed!
-        echo [kusrinit] ERROR: package directory creation for user %username% failed >>"%logfile%"
+        echo [kusrinit] ERROR: package directory creation for user %user% failed >>"%logfile%"
         goto pauseexit
     )
 )
 
 if not exist "%userMods%/" (
     echo Creating module directory...
-    echo [kusrinit] INFO: creating module directory for %username% >>"%logfile%"
+    echo [kusrinit] INFO: creating module directory for %user% >>"%logfile%"
     cd /d "%userSysDatadir%"
     md %modsDir%
     echo.
     if not exist "%userMods%/" (
         echo Module directory creation failed!
-        echo [kusrinit] ERROR: module directory creation for user %username% failed >>"%logfile%"
+        echo [kusrinit] ERROR: module directory creation for user %user% failed >>"%logfile%"
         goto pauseexit
     )
 )
 
 if exist "%userDir%" (
-    echo Logging in as %username%
-    echo [kusrinit] INFO: logging in as %username% >>"%logfile%"
+    echo Logging in as %user%
+    echo [kusrinit] INFO: logging in as %user% >>"%logfile%"
 )
 
 if exist "%toggles%/slowboot" (call :slowboot)
@@ -289,7 +294,7 @@ echo.
 :: Load user modules
 
 for %%U in (flashbreak devtools) do (
-    if exist "%userMods%/%%U.mfm" (call :loadmodok /%userData%/%username%/%userSysData%/%modsDir%/%%U.mfm)
+    if exist "%userMods%/%%U.mfm" (call :loadmodok /%userData%/%user%/%userSysData%/%modsDir%/%%U.mfm)
 )
 
 if exist "%toggles%/slowboot" (call :slowboot)
@@ -353,13 +358,13 @@ echo Welcome to MicroflashOS!
 echo [cmd] INFO: initialized prompt >>"%logfile%"
 echo.
 if not exist "%userDir%" (
-    echo Userdata for user %username% not found.
-    echo [kusrinit] ERROR: no userdata for user %username% >>"%logfile%"
+    echo Userdata for user %user% not found.
+    echo [kusrinit] ERROR: no userdata for user %user% >>"%logfile%"
     echo.
     goto reboot
 )
-echo Logged in as %username%
-echo [cmd] INFO: current user: %username% >>"%logfile%"
+echo Logged in as %user%
+echo [cmd] INFO: current user: %user% >>"%logfile%"
 echo.
 echo Type HELP for a list of commands.
 echo Commands are not case-sensitive.
@@ -407,7 +412,7 @@ set "command="
 
 :: Command whitelist
 
-set "cmdlist=about help clock clear reboot shutdown mkdir rename delete list cd home homewipe mfpkg mountsys modules toggles nuke dumper winflash mountvirt getargs getvars updater"
+set "cmdlist=about help clock clear reboot shutdown mkdir rename delete list cd home homewipe mfpkg mountsys modules toggles nuke dumper winflash mountvirt getargs getvars updater users"
 
 :: receive input from the user:
 
@@ -416,7 +421,7 @@ echo.
 echo [cmd] INFO: load user prompt >>"%logfile%"
 echo [cmd] INFO: waiting for user input >>"%logfile%"
 
-set /p "input=%username%@%userdomain%: "
+set /p "input=%user%@%userdomain%: "
 
 title Processing command...
 echo [cmd] INFO: received command "%input%" >>"%logfile%"
@@ -472,6 +477,10 @@ if exist "%disk0p1%/fsutils.mcm" (
     echo delete [file/directory] [name]: Delete a file/directory
     echo list: List available files/directories
     echo cd [path]: Change to a directory
+    echo.
+    echo User management
+    echo.
+    echo users [add/switch] [username]: Manage users in userdata partition
     echo home: Quickly return to user directory
     echo homewipe: Wipe all user directories
     echo [help] INFO: load help section for /%sysDir%/fsutils.mcm >>"%logfile%"
@@ -498,19 +507,19 @@ if exist "%disk0p1%/mfpkg.mcm" (
     echo.
     if exist "%pkgDir%/nuke.mfp" (
         echo nuke: Nuke.
-        echo [mfpkg] INFO: found package /%userData%/%username%/%userSysData%/packages/nuke.mfp >>"%logfile%"
+        echo [mfpkg] INFO: found package /%userData%/%user%/%userSysData%/packages/nuke.mfp >>"%logfile%"
     )
     if exist "%pkgDir%/dumper.mfp" (
         echo dumper: MicroflashOS firmware dumper by nsp
-        echo [mfpkg] INFO: found package /%userData%/%username%/%userSysData%/packages/dumper.mfp >>"%logfile%"
+        echo [mfpkg] INFO: found package /%userData%/%user%/%userSysData%/packages/dumper.mfp >>"%logfile%"
     )
     if exist "%pkgDir%/winflash.mfp" (
         echo winflash: WinFlash compatibility layer for Windows software
-        echo [mfpkg] INFO: found package /%userData%/%username%/%userSysData%/packages/winflash.mfp >>"%logfile%"
+        echo [mfpkg] INFO: found package /%userData%/%user%/%userSysData%/packages/winflash.mfp >>"%logfile%"
     )
     if exist "%pkgDir%/mountvirt.mfp" (
         echo mountvirt [disk name]: Mount and boot to a system disk of your choice
-        echo [mfpkg] INFO: found package /%userData%/%username%/%userSysData%/packages/mountvirt.mfp >>"%logfile%"
+        echo [mfpkg] INFO: found package /%userData%/%user%/%userSysData%/packages/mountvirt.mfp >>"%logfile%"
     )
 )
 goto execdone
@@ -893,6 +902,17 @@ echo [fsutils] DEBUG: current path is "%cd%" >>"%logfile%"
 goto execdone
 
 :: Userdata management
+
+:users
+if not exist "%disk0p1%/core.mcm" (goto nocommand)
+if "%1" == "add" (
+    set "user=%2"
+    goto reboot
+)
+if "%1" == "switch" (
+    set "user=%2"
+    goto reboot
+) else (echo Invalid. && goto :eof)
 
 :home
 if not exist "%disk0p1%/fsutils.mcm" (goto nocommand)
@@ -1693,3 +1713,9 @@ exit
 echo.
 pause
 goto :eof
+
+
+
+
+
+
